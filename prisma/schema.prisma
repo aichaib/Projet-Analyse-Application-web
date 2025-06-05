@@ -3,10 +3,56 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+
+// Modele Utilisateur: stocke les comptes utilisateurs et indicateur d administration
+model Utilisateur {
+  id               Int                 @id @default(autoincrement())
+  prenom           String
+  nom              String
+  email            String              @unique
+  motDePasseHash   String
+  reservations     UtilisationSalle[]
+}
+
+model Salle {
+  id               Int                 @id @default(autoincrement())
+  nom              String              @unique
+  capacite         Int
+  emplacement       String
+  equipements      SalleEquipement[]
+  reservations     UtilisationSalle[]
+}
+
+model Equipement {
+  id               Int                 @id @default(autoincrement())
+  nom              String              @unique
+  salles           SalleEquipement[]
+}
+
+model SalleEquipement {
+  salleId          Int
+  equipementId     Int
+
+  salle            Salle               @relation(fields: [salleId], references: [id])
+  equipement       Equipement          @relation(fields: [equipementId], references: [id])
+
+  @@id([salleId, equipementId])
+}
+
+model UtilisationSalle {
+  id               Int                 @id @default(autoincrement())
+  dateDebut        DateTime
+  dateFin          DateTime
+  utilisateurId    Int
+  salleId          Int
+
+  utilisateur      Utilisateur         @relation(fields: [utilisateurId], references: [id])
+  salle            Salle               @relation(fields: [salleId], references: [id])
 }
