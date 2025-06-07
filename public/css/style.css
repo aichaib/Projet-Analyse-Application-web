@@ -1,5 +1,102 @@
-h1 {
- color: blue;
- font-size: large;
- font-weight: 800;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
+
+header {
+  position: relative;
+  background-color: #003366;
+  color: #fff;
+  padding: 1.20rem 1.85rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* bouton à gauche */
+.header-left {
+  position: absolute;
+  left: 1.5rem;
+}
+.header-left .btn-entete {
+  background-color: #fff;
+  color: #003366;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.header-left .btn-entete:hover {
+  background-color: #004080;
+}
+
+/* titre centré */
+.header-center .logo {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+footer {
+  background-color: #F3E6FF;    /* même violet pastel que sur la photo */
+  color: #222;
+  font-family: Arial, sans-serif;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: auto;
+  justify-content: center;
+  gap: 2rem;
+}
+
+/* Premier bloc de liens */
+footer > div:first-child {
+  display: flex;
+  gap: 2rem;
+}
+
+/* On enlève les puces */
+footer li {
+  list-style: none;
+  margin: 0;
+}
+
+/* Style des liens */
+footer a {
+  color: inherit;
+  text-decoration: none;
+  transition: text-decoration-color 0.2s;
+}
+
+/* Soulignement au hover avec la couleur de fond de l’entête */
+footer a:hover {
+  text-decoration: underline;
+  text-decoration-color: #003366; /* remplacer par la couleur exacte de votre header */
+}
+
+/* Séparateur horizontal avant la ligne © */
+footer > div:last-child {
+  flex-basis: 100%;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #CCC;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Style du texte © */
+footer > div:last-child p {
+  margin: 0;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
