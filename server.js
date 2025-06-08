@@ -20,7 +20,7 @@ import memorystore from "memorystore";
 import passport from "passport";
 
 import "./authentification.js";
-
+import './model/cleanup.js';
 // Crréation du serveur express
 const app = express();
 
@@ -40,8 +40,12 @@ app.use(json());
 //Middeleware pour gerer les sessions
 app.use(
     session({
-        cookie: { maxAge: 3600000 },
-        name: process.env.npm_package_name,
+        cookie: {
+            maxAge: 3600000,
+            sameSite: "lax", // pour que le cookie soit accepté même avec fetch()
+            secure: false    // doit être true si HTTPS, false en local
+        },
+        name: "sessionId",
         store: new MemoryStore({ checkPeriod: 3600000 }),
         resave: false,
         saveUninitialized: false,
