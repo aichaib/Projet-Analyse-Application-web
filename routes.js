@@ -1,4 +1,6 @@
 import { Router } from "express";
+import sallesRouter from "./sallesRouter.js";
+router.use("/salles", sallesRouter);
 
 const router = Router();
 import passport from "passport";
