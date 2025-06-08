@@ -18,7 +18,21 @@ model Utilisateur {
   nom              String
   email            String              @unique
   motDePasseHash   String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @default(now()) @updatedAt
+  lastLogin         DateTime?
+  verificationCodes VerificationCode[]
   reservations     UtilisationSalle[]
+}
+model VerificationCode {
+  id                Int           @id @default(autoincrement())
+  utilisateurId     Int
+  email             String
+  code              String
+  createdAt         DateTime      @default(now())
+  expiresAt         DateTime
+  utilisateur       Utilisateur  @relation(fields: [utilisateurId], references: [id])
+   @@index([utilisateurId])
 }
 
 model Salle {

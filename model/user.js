@@ -1,17 +1,26 @@
-// importer ler client prisma
+// model/user.js
 import { PrismaClient } from "@prisma/client";
-
 import bcrypt from "bcrypt";
 
-//Creer une instance de prisma
 const prisma = new PrismaClient();
 
-// Pour recuperer un utilisateur par son email
-export const getUserByEmail = async (email) => {
-    const user = await prisma.user.findUnique({
-        where: {
-            email,
-        },
-    });
-    return user;
-};
+/** Trouve un utilisateur par email */
+export async function getUserByEmail(email) {
+  return prisma.utilisateur.findUnique({ where: { email } });
+}
+
+/** Crée un nouvel utilisateur (hash du mot de passe) */
+export async function addUser({ prenom, nom, email, motDePasse, estAdmin = false }) {
+  const motDePasseHash = await bcrypt.hash(motDePasse, 10);
+  return prisma.utilisateur.create({
+    data: { prenom, nom, email, motDePasseHash, estAdmin }
+  });
+}
+
+/** Met à jour la date du dernier login */
+export async function updateLastLogin(utilisateurId) {
+  return prisma.utilisateur.update({
+    where: { id: utilisateurId },
+    data: { lastLogin: new Date() }
+  });
+}
