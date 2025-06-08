@@ -1,0 +1,26 @@
+<section class="formulaire-salle">
+  <h1 class="title">Ajouter une nouvelle salle</h1>
+
+  <form action="/salles" method="POST" class="formulaire">
+    <div class="form-group">
+      <label for="nom">Nom :</label>
+      <input type="text" id="nom" name="nom" required>
+    </div>
+
+    <div class="form-group">
+      <label for="capacite">Capacité :</label>
+      <input type="number" id="capacite" name="capacite" required>
+    </div>
+
+    <div class="form-group">
+      <label for="emplacement">Emplacement :</label>
+      <input type="text" id="emplacement" name="emplacement" required>
+    </div>
+
+    <button type="submit" class="btn-envoyer">Créer</button>
+  </form>
+
+  <div class="retour">
+    <a href="/salles" class="btn-retour">← Retour à la liste</a>
+  </div>
+</section>

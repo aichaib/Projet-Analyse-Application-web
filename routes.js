@@ -1,5 +1,9 @@
 // routes.js
 import { Router } from "express";
+
+import sallesRouter from "./sallesRouter.js";
+router.use("/salles", sallesRouter);
+
 import passport from "passport";
 import { getUserByEmail, addUser, updateLastLogin } from "./model/user.js";
 import {
@@ -10,6 +14,7 @@ import {
 } from "./model/verificationCode.js";
 import { isEmailValid, isPasswordValid } from "./validation.js";
 import { sendVerificationCode, sendInscriptionVerificationCode } from "./model/email.js";
+
 
 const router = Router();
 

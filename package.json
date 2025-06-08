@@ -12,7 +12,7 @@
  "author": "Ibikunle Aicha Miguel Proulx Daoud Aslan Taha Ait Bella Charles Kossi",
  "license": "UNLICENSED",
  "dependencies": {
-  "@prisma/client": "^6.7.0",
+  "@prisma/client": "^6.9.0",
   "bcrypt": "^6.0.0",
   "compression": "^1.7.5",
   "cors": "^2.8.5",
@@ -29,6 +29,6 @@
  },
  "devDependencies": {
   "nodemon": "^3.1.9",
-  "prisma": "^6.7.0"
+  "prisma": "^6.9.0"
  }
 }

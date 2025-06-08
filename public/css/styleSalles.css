@@ -1,0 +1,100 @@
+/* police et couleur de base */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #fff;
+  color: #102a43;
+  margin: 0;
+  padding: 0;
+}
+
+/* titre principal */
+.title {
+  font-size: 20px;
+  margin: 16px 0;
+}
+
+/* conteneur pour scroller la table si besoin */
+.table-container {
+  overflow-x: auto;
+}
+
+/* style de la table */
+.salles-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+/* cellules de la table */
+.salles-table th,
+.salles-table td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+/* boutons generaux */
+.btn-ajouter,
+.btn-retour,
+.btn-envoyer,
+.btn-modifier,
+.btn-supprimer {
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+}
+
+/* bouton pour ajouter */
+.btn-ajouter {
+  background-color: #1e3a8a;
+  color: #fff;
+}
+
+/* bouton pour revenir */
+.btn-retour {
+  background-color: #334155;
+  color: #fff;
+}
+
+/* bouton pour envoyer formulaire */
+.btn-envoyer {
+  background-color: #2563eb;
+  color: #fff;
+}
+
+/* bouton pour modifier */
+.btn-modifier {
+  background-color: #facc15;
+  color: #000;
+}
+
+/* bouton pour supprimer */
+.btn-supprimer {
+  background-color: #dc2626;
+  color: #fff;
+}
+
+/* conteneur du formulaire */
+.formulaire {
+  background: #fff;
+  padding: 16px;
+  max-width: 500px;
+}
+
+/* espacement entre les champs */
+.form-group {
+  margin-bottom: 12px;
+}
+
+/* champs de saisie */
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 14px;
+}
