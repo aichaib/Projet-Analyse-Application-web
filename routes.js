@@ -14,9 +14,13 @@ import {
 } from "./model/verificationCode.js";
 import { isEmailValid, isPasswordValid } from "./validation.js";
 import { sendVerificationCode, sendInscriptionVerificationCode } from "./model/email.js";
-
+import { listReservations, createReservation, cancelReservation, getSalles } from "./model/utilisation_salle.js";
+import { isAuthenticated } from "./authentification.js";
 
 const router = Router();
+
+// Middleware d'authentification
+router.use(isAuthenticated);
 
 // — accueil —
 router.get("/", (req, res) => {
@@ -114,7 +118,7 @@ router.post("/connexion", (req, res, next) => {
   })(req, res, next);
 });
 
-// — traite l’inscription utilisateur pure —
+// — traite l'inscription utilisateur pure —
 router.post("/inscription", async (req, res) => {
   const { prenom, nom, email, motDePasse } = req.body;
   if (!prenom||!nom||!isEmailValid(email)||!isPasswordValid(motDePasse)) {
@@ -129,7 +133,7 @@ router.post("/inscription", async (req, res) => {
   }
 });
 
-// — traite la demande d’inscription admin (envoi code au super-admin) —
+// — traite la demande d'inscription admin (envoi code au super-admin) —
 router.post("/admin/inscription", async (req, res) => {
   const { prenom, nom, email } = req.body;
   if (!prenom||!nom||!isEmailValid(email)) {
@@ -158,7 +162,7 @@ router.post("/api/verify-code", async (req, res) => {
   return res.json({ redirect: "/admin-secret" });
 });
 
-// — (optionnel) validation du code d’inscription utilisateur —  
+// — (optionnel) validation du code d'inscription utilisateur —  
 router.post("/api/inscription/verify", async (req, res) => {
   const { code } = req.body;
   const entry = await getLatestCodeForEmail(req.session.email);
@@ -167,7 +171,7 @@ router.post("/api/inscription/verify", async (req, res) => {
   const ok = await bcrypt.compare(code, entry.code);
   if (!ok)                       return res.status(401).json({ message: "Code invalide." });
 
-  // crée l’utilisateur réel ici…
+  // crée l'utilisateur réel ici…
   await deleteCode(entry.id);
   return res.json({ redirect: "/user/login" });
 });
@@ -179,6 +183,36 @@ router.post("/deconnexion", (req, res, next) => {
     if (err) return next(err);
     res.redirect("/");
   });
+});
+
+// Routes pour les réservations
+
+// GET /reservations - affiche la liste des réservations de l'utilisateur connecté
+router.get("/reservations", async (request, response) => {
+    const reservations = await listReservations(request.session.user.id);
+    response.render("reservations/list", { reservations });
+});
+
+// GET /reservations/new - affiche le formulaire pour créer une nouvelle réservation
+router.get("/reservations/new", async (request, response) => {
+    const salles = await getSalles();
+    response.render("reservations/new", { salles });
+});
+
+// POST /reservations - crée une nouvelle réservation
+router.post("/reservations", async (request, response) => {
+    const { salleId, dateDebut, dateFin } = request.body;
+    if (new Date(dateDebut) >= new Date(dateFin)) {
+        return response.status(400).send('La date de début doit être avant la date de fin.');
+    }
+    await createReservation({ utilisateurId: request.session.user.id, salleId: parseInt(salleId), dateDebut, dateFin });
+    response.redirect("/reservations");
+});
+
+// DELETE /reservations/:id - annule une réservation
+router.delete("/reservations/:id", async (request, response) => {
+    await cancelReservation(parseInt(request.params.id), request.session.user.id);
+    response.json({ success: true });
 });
 
 export default router;
