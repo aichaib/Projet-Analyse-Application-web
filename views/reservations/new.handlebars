@@ -1,0 +1,18 @@
+<h2>Nouvelle réservation</h2>
+<form method="POST" action="/reservations">
+    <label for="salleId">Salle :</label>
+    <select name="salleId" id="salleId" required>
+        {{#each salles}}
+            <option value="{{id}}">{{nom}}</option>
+        {{/each}}
+    </select>
+    <br>
+    <label for="dateDebut">Date début :</label>
+    <input type="datetime-local" name="dateDebut" id="dateDebut" required>
+    <br>
+    <label for="dateFin">Date fin :</label>
+    <input type="datetime-local" name="dateFin" id="dateFin" required>
+    <br>
+    <button type="submit">Réserver</button>
+</form>
+<a href="/reservations">Retour à la liste</a> 
