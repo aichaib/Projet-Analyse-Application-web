@@ -1,11 +1,7 @@
 // routes.js
 import { Router } from "express";
 
-import {listSalles, createSalle, updateSalle, deleteSalle, findSalleById } from "../model/gestion_salle.js";
-
-
-import sallesRouter from "./sallesRouter.js";
-router.use("/salles", sallesRouter);
+import {listSalles, createSalle, updateSalle, deleteSalle } from "./model/gestion_salle.js";
 
 
 import passport from "passport";
@@ -19,12 +15,9 @@ import {
 import { isEmailValid, isPasswordValid } from "./validation.js";
 import { sendVerificationCode, sendInscriptionVerificationCode } from "./model/email.js";
 import { listReservations, createReservation, cancelReservation, getSalles } from "./model/utilisation_salle.js";
-import { isAuthenticated } from "./authentification.js";
+
 
 const router = Router();
-
-// Middleware d'authentification
-router.use(isAuthenticated);
 
 // — accueil —
 router.get("/", (req, res) => {
@@ -225,14 +218,15 @@ router.post("/api/inscription/verify", async (req, res) => {
   return res.json({ redirect: "/user/login" });
 });
 
-// — déconnexion —
+/* // — déconnexion —
 router.post("/deconnexion", (req, res, next) => {
-  if (!req.isAuthenticated()) return res.status(401).end();
+  if () return res.status(401).end();
   req.logOut(err => {
-    if (err) return next(err);
+    if (err) return next(e
+    rr);
     res.redirect("/");
   });
-});
+}); */
 
 // Routes pour les réservations
 
