@@ -1,7 +1,7 @@
 // routes.js
 import { Router } from "express";
 
-import {listSalles, createSalle, updateSalle, deleteSalle } from "./model/gestion_salle.js";
+import {listSalles, createSalle, updateSalle, deleteSalle} from "./model/gestion_salle.js";
 
 
 import passport from "passport";
@@ -35,10 +35,6 @@ router.get("/salles", async (req, res) => {
   res.render("salles/list", { salles });
 });
 
-// GET /salles/new — formulaire de creation
-router.get("/salles/new", (req, res) => {
-  res.render("salles/new");
-});
 
 // POST /salles — creer une nouvelle salle
 router.post("/salles", async (req, res) => {
@@ -63,16 +59,17 @@ router.put("/salles/:id", async (req, res) => {
 });
 
 // DELETE /salles/:id — suppression
-/*router.delete("/salles/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  await deleteSalle(id);
-  res.json({ success: true });
-    titre:   "Accueil",
-    styles:  ["/css/style.css"],
-    scripts: ["/js/main.js"],
-    user:    req.user
-  });
-});*/
+router.delete("/salles/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await deleteSalle(id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la salle:", error);
+    res.status(500).json({ success: false, error: "Erreur serveur" });
+  }
+});
+
 
 // — Inscription utilisateur (GET /user/register) —
 router.get("/user/register", (req, res) => {
