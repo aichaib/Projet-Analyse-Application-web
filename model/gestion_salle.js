@@ -40,3 +40,13 @@ export async function deleteSalle(id) {
     where: { id },
   });
 }
+
+// trouver une salle par son ID
+export async function findSalleById(id) {
+  return await prisma.salle.findUnique({
+    where: { id },
+    include: { equipements: true },
+  });
+}
+
+
