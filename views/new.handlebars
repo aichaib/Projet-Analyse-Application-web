@@ -13,6 +13,15 @@
     </div>
 
     <div class="form-group">
+  <label for="equipement">Équipement :</label>
+  <select id="equipement" name="equipementId" required>
+    <option value="">-- Sélectionnez un équipement --</option>
+    {{#each equipements}}
+      <option value="{{this.id}}">{{this.nom}}</option>
+    {{/each}}
+  </select>
+
+    <div class="form-group">
       <label for="emplacement">Emplacement :</label>
       <input type="text" id="emplacement" name="emplacement" required>
     </div>
@@ -24,3 +33,4 @@
     <a href="/salles" class="btn-retour">← Retour à la liste</a>
   </div>
 </section>
+

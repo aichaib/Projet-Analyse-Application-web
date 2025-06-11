@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Tableau de bord admin</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <header class="header">
+    <div class="langue">🌐 Langue</div>
+    <div class="titre">CampusBooking</div>
+    <a href="/logout" class="deconnexion">Déconnexion</a>
+  </header>
+
+  <div class="container">
+    <aside class="sidebar">
+      <ul>
+        <li><a href="/salles/new">Ajouter une salle</a></li>
+        <li><a href="/salles">Modifier une salle</a></li>
+        <li><a href="/salles">Voir les salles</a></li>
+        <li><a href="/historique">Historique</a></li>
+        <li><a href="/admin/users">Gestion Utilisateurs</a></li>
+        <li><a href="/parametres">Paramètres</a></li>
+      </ul>
+    </aside>
+
+    <main class="main">
+        
+      <h1>Bienvenue admin!</h1>
+
+      <div class="actions">
+        <a href="/salles/new" class="btn-large">Ajouter une salle</a>
+        <button class="btn-small">➕ Ajouter</button>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    Connecté: {{email}}
+  </footer>
+</body>
+</html>
