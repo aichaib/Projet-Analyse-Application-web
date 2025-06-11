@@ -5,15 +5,6 @@ import { PrismaClient } from "@prisma/client";
 const router = Router();
 const prisma = new PrismaClient();
 
-// Middleware d'authentification
-function isAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) return next();
-  res.redirect("/login");
-  return null;
-}
-router.use(isAuthenticated);
-
-
 // Get liste de tous les equipements
 router.get("/", async (req, res) => {
   try {
@@ -41,7 +32,7 @@ router.post("/", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
+/*
 // Get formulaire d'édition d'un equipement
 router.get("/:id/edit", async (req, res) => {
   const id = parseInt(req.params.id);
@@ -59,7 +50,7 @@ router.get("/:id/edit", async (req, res) => {
   }
   return null;
 });
-
+*/
 // Put mise à jour d'un equipement
 router.put("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
