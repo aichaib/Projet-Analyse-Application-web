@@ -70,7 +70,7 @@ router.put("/salles/:id", async (req, res) => {
 });
 
 // DELETE /salles/:id — suppression
-router.delete("/salles/:id", async (req, res) => {
+/*router.delete("/salles/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   await deleteSalle(id);
   res.json({ success: true });
@@ -79,7 +79,7 @@ router.delete("/salles/:id", async (req, res) => {
     scripts: ["/js/main.js"],
     user:    req.user
   });
-});
+});*/
 
 // — Inscription utilisateur (GET /user/register) —
 router.get("/user/register", (req, res) => {
