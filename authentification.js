@@ -9,13 +9,13 @@ import { getUserByEmail } from "./model/user.js";
 // serveur pour l'authentification.
 const config = {
     usernameField: "email",
-    passwordField: "password",
+    passwordField: "motDePasse",
 };
 
 // Configuration de quoi faire avec l'identifiant
 // et le mot de passe pour les valider
 passport.use(
-    new Strategy(config, async (email, password, done) => {
+    new Strategy(config, async (email, motDePasse, done) => {
         // S'il y a une erreur avec la base de données,
         // on retourne l'erreur au serveur
         try {

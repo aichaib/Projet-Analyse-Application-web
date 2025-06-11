@@ -1,0 +1,28 @@
+
+<section id="admin-register-section" class="container form-section">
+  <h2>Inscription Administrateur</h2>
+  <p>Cette demande sera envoyée au super-admin ({{env 'EMAIL_USER'}}).</p>
+  <form class="form needs-validation admin-register-form">
+    <div class="form-group">
+      <label for="adm-reg-prenom">Prénom</label>
+      <input type="text" id="adm-reg-prenom" name="prenom" class="form-control" placeholder="Prénom admin" required />
+    </div>
+    <div class="form-group">
+      <label for="adm-reg-nom">Nom</label>
+      <input type="text" id="adm-reg-nom" name="nom" class="form-control" placeholder="Nom admin" required />
+    </div>
+    <div class="form-group">
+      <label for="adm-reg-email">Adresse e-mail</label>
+      <input type="email" id="adm-reg-email" name="email" class="form-control" placeholder="nouvel.admin@exemple.com" required />
+    </div>
+    <div class="form-group">
+      <label for="adm-reg-password">Mot de passe</label>
+      <input type="password" id="adm-reg-password" name="motDePasse" class="form-control" placeholder="••••••••" required />
+    </div>
+    <div class="form-group">
+      <label for="adm-reg-password-confirm">Confirmer le mot de passe</label>
+      <input type="password" id="adm-reg-password-confirm" name="motDePasseConfirm" class="form-control" placeholder="••••••••" required />
+    </div>
+    <button type="submit" class="btn form-btn">Demander l’inscription</button>
+  </form>
+</section>
