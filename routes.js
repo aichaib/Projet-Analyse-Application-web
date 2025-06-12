@@ -1,7 +1,7 @@
 // routes.js
 import { Router } from "express";
 
-import {listSalles, createSalle, updateSalle, deleteSalle} from "./model/gestion_salle.js";
+import {listSalles, createSalle, updateSalle, deleteSalle, findSalleById} from "./model/gestion_salle.js";
 
 
 import passport from "passport";
@@ -69,6 +69,7 @@ router.delete("/salles/:id", async (req, res) => {
     res.status(500).json({ success: false, error: "Erreur serveur" });
   }
 });
+
 
 
 // — Inscription utilisateur (GET /user/register) —
