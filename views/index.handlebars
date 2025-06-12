@@ -1,3 +1,24 @@
-<div>
-    Bonjour
+<div style="margin-top: 70px;"></div>
+
+<div class="main-container">
+    <nav class="sidebar">
+        <ul>
+            <li><a href="/reservations/new"><span>+</span> Réserver une salle</a></li>
+            <li><a href="/reservations"><span>≡</span> Mes réservations</a></li>
+            <li><a href="/historique"><span>📋</span> Historique</a></li>
+            <li><a href="/parametres"><span>⚙️</span> Paramètres</a></li>
+        </ul>
+    </nav>
+    <main class="main-content">
+        <h2>Bienvenue {{user.nom}} !</h2>
+        <form action="/recherche" method="GET">
+            <button class="btn-recherche" type="submit">
+                <span>🔍</span> Rechercher une salle
+            </button>
+        </form>
+    </main>
 </div>
+
+<footer class="footer">
+    Connecté comme : {{user.email}}
+</footer>

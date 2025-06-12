@@ -1,0 +1,20 @@
+<h2>Mes réservations</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Salle</th>
+            <th>Date</th>
+            <th>Heure</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each reservations}}
+        <tr>
+            <td>{{this.salleId}}</td>
+            <td>{{this.date}}</td>
+            <td>{{this.heure}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+<a href="/reservations/new">+ Nouvelle réservation</a> 

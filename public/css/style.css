@@ -18,13 +18,18 @@ header {
   z-index: 1000; 
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  min-width: 0;
 }
 
 /* bouton à gauche */
 .header-left {
   position: absolute;
   left: 1.5rem;
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 200px;
+  overflow: hidden;
 }
 .header-left .btn-entete {
   background-color: #fff;
@@ -43,6 +48,20 @@ header {
   margin: 0;
   font-size: 1.5rem;
   font-weight: bold;
+}
+
+.header-actions {
+    margin-left: auto;
+    margin-right: 30px;
+    display: flex;
+    gap: 20px;
+    flex: 0 0 auto;
+    align-items: center;
+    min-width: 0;
+}
+
+.header-actions > *:not(:last-child) {
+    margin-right: 20px;
 }
 
 footer {
@@ -76,7 +95,7 @@ footer a {
   transition: text-decoration-color 0.2s;
 }
 
-/* Soulignement au hover avec la couleur de fond de l’entête */
+/* Soulignement au hover avec la couleur de fond de l'entête */
 footer a:hover {
   text-decoration: underline;
   text-decoration-color: #003366; /* remplacer par la couleur exacte de votre header */
@@ -98,5 +117,248 @@ footer > div:last-child p {
   margin: 0;
   font-style: italic;
   font-size: 0.9rem;
+}
+
+.app-title {
+    flex: 1 1 auto;
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-contact {
+    width: 100%;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar {
+    background: #0e2a47;
+    color: #fff;
+    padding: 30px 10px;
+    min-width: 220px;
+    border-radius: 20px;
+    margin: 20px 0 20px 20px;
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+.sidebar li {
+    margin: 20px 0;
+}
+.sidebar a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.sidebar a:hover {
+    text-decoration: underline;
+}
+
+.btn-recherche {
+    background: #0e2a47;
+    color: #fff;
+    border: none;
+    padding: 20px 40px;
+    border-radius: 15px;
+    font-size: 1.3em;
+    margin-top: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn-recherche span {
+    color: #222;
+    font-size: 1.2em;
+}
+.btn-recherche:hover {
+    background: #15335a;
+}
+
+.main-content {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.reservation-container {
+    max-width: 400px;
+    margin: 40px auto;
+    background: #f8f9fa;
+    border-radius: 20px;
+    padding: 30px 30px 20px 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.form-reservation label {
+    display: block;
+    margin-top: 18px;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+.form-reservation select,
+.form-reservation input[type="date"],
+.form-reservation input[type="time"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+.btn-reserver {
+    width: 100%;
+    background: #0e2a47;
+    color: #fff;
+    border: none;
+    padding: 12px 0;
+    border-radius: 10px;
+    font-size: 1.1em;
+    margin-top: 15px;
+    cursor: pointer;
+}
+.btn-reserver:hover {
+    background: #15335a;
+}
+.btn-retour {
+    display: inline-block;
+    margin-bottom: 20px;
+    background: #e5e7eb;
+    color: #222;
+    border-radius: 10px;
+    padding: 8px 18px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* --- Styles pour la page de réservation --- */
+.reservation-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin-top: 40px;
+}
+.reservation-container {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.form-recherche label {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.form-recherche select,
+.form-recherche input[type="date"],
+.form-recherche input[type="time"] {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  background: #e5e5ea;
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
+.btn-reserver {
+  background: #163968;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 0;
+  font-size: 1rem;
+  font-weight: 500;
+  width: 100%;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-reserver:hover {
+  background: #1d4a8a;
+}
+.grille-salles {
+  flex: none;
+  width: 400px;
+  max-width: 400px;
+  background: #f7f7fa;
+  border-radius: 12px;
+  padding: 32px 32px 24px 32px;
+  min-height: 350px;
+  height: 400px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 2px solid #e0e0e0;
+  box-shadow: 0 2px 12px rgba(22,57,104,0.07);
+}
+
+.titre-resultat {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 12px;
+  color: #222;
+}
+
+header.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  min-height: 70px;
+  background: #163968;
+  color: #fff;
+  box-sizing: border-box;
+  padding: 0 32px;
+}
+.header-left, .header-actions {
+  width: 180px;
+  display: flex;
+  align-items: center;
+}
+.header-left {
+  justify-content: flex-start;
+}
+.header-actions {
+  justify-content: flex-end;
+}
+.app-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  pointer-events: none;
+  z-index: 0;
+}
+header.header > .header-left,
+header.header > .header-actions {
+  z-index: 1;
+}
+footer.footer {
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+  background: #e5e5ea;
+  color: #222;
+  width: 100%;
+  padding: 8px 0 0 0;
+  border-top: 1px solid #d1d1d1;
 }
 

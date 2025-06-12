@@ -14,7 +14,7 @@ import {
 } from "./model/verificationCode.js";
 import { isEmailValid, isPasswordValid } from "./validation.js";
 import { sendVerificationCode, sendInscriptionVerificationCode } from "./model/email.js";
-import { listReservations, createReservation, cancelReservation, getSalles } from "./model/utilisation_salle.js";
+// import { listReservations, createReservation, cancelReservation, getSalles } from "./model/utilisation_salle.js";
 
 
 const router = Router();
@@ -22,10 +22,9 @@ const router = Router();
 // — accueil —
 router.get("/", (req, res) => {
   res.render("index", {
-
+    user: req.session.user,
     titre: "Accueil",
-    scripts: ["./js/main.js"],
-    styles: ["./css/style.css"]
+    styles: ["/css/style.css", "/css/index.css"]
   });
 });
 
@@ -231,15 +230,21 @@ router.post("/deconnexion", (req, res, next) => {
 // Routes pour les réservations
 
 // GET /reservations - affiche la liste des réservations de l'utilisateur connecté
-router.get("/reservations", async (request, response) => {
-    const reservations = await listReservations(request.session.user.id);
-    response.render("reservations/list", { reservations });
+router.get("/reservations", (req, res) => {
+    res.render("reservations/listReservationUser", {
+        titre: "Mes réservations",
+        styles: ["/css/style.css"],
+        reservations // variable en mémoire déjà déclarée plus haut
+    });
 });
 
 // GET /reservations/new - affiche le formulaire pour créer une nouvelle réservation
-router.get("/reservations/new", async (request, response) => {
-    const salles = await getSalles();
-    response.render("reservations/new", { salles });
+router.get("/reservations/new", (req, res) => {
+    res.render("reservations/newReservationUser", {
+        titre: "Nouvelle réservation",
+        styles: ["/css/style.css"],
+        scripts: ["/js/reservation.js"]
+    });
 });
 
 // POST /reservations - crée une nouvelle réservation
@@ -256,6 +261,29 @@ router.post("/reservations", async (request, response) => {
 router.delete("/reservations/:id", async (request, response) => {
     await cancelReservation(parseInt(request.params.id), request.session.user.id);
     response.json({ success: true });
+});
+
+// --- LOGIQUE EN MÉMOIRE POUR LES RÉSERVATIONS ---
+const salles = [
+    { id: 1, nom: "Salle A" },
+    { id: 2, nom: "Salle B" }
+];
+const reservations = [];
+
+// API pour obtenir les salles
+router.get("/api/salles", (req, res) => {
+    res.status(200).json(salles);
+});
+
+// API pour créer une réservation
+router.post("/api/reservations", (req, res) => {
+    const { salleId, date, heure } = req.body;
+    if (!salleId || !date || !heure) {
+        return res.status(400).json({ error: "Données manquantes." });
+    }
+    const reservation = { salleId, date, heure };
+    reservations.push(reservation);
+    res.status(200).json({ reservation, message: "Réservation réussie" });
 });
 
 export default router;
