@@ -1,15 +1,15 @@
 import { Router } from "express";
 import { listEquipements, createEquipement, updateEquipement, deleteEquipement } from "../model/equipement.js";
-import { PrismaClient } from "@prisma/client";
+//import { PrismaClient } from "@prisma/client";
 
 const router = Router();
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient();
 
 // Get liste de tous les equipements
 router.get("/", async (req, res) => {
   try {
     const equipements = await listEquipements();
-    res.render("equipements/list", { equipements });
+    res.render("list_equipement", { equipements });
   } catch (error) {
     console.error("Error fetching equipements:", error);
     res.status(500).send("Internal Server Error");

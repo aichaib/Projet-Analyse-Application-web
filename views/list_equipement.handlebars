@@ -1,0 +1,25 @@
+<session>
+    <h1>Liste des équipements</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Nom</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each equipements}}
+            <tr>
+            <td>{{this.nom}}</td>
+            <td>
+                <a href="/equipement/modifier/{{this.id}}" class="btn btn-primary">Modifier</a>
+            </td>   
+            <td>
+                <a href="/equipement/supprimer/{{this.id}}" class="btn btn-danger">Supprimer</a>
+            </td>
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
+    
+    <a href="/equipement/ajouter" class="btn btn-success">Ajouter un nouvel équipement</a>
+</session>
