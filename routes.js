@@ -15,7 +15,6 @@ import {
 import { isEmailValid, isPasswordValid } from "./validation.js";
 import { sendVerificationCode, sendInscriptionVerificationCode } from "./model/email.js";
 
-
 const router = Router();
 
 // — accueil —
@@ -225,3 +224,4 @@ router.post("/deconnexion", (req, res, next) => {
   });
 }); */
 
+export default router;
