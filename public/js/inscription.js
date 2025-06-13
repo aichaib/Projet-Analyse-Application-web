@@ -1,51 +1,101 @@
 // public/js/inscription.js
-import { isEmailValid, isPasswordValid } from "./validation.js";
+
+// Récupération des éléments du DOM
 
 // Utilisateur
-const uReg = document.querySelector(".register-form");
-if (uReg) {
-  uReg.addEventListener("submit", async e => {
-    e.preventDefault();
+let formUser           = document.getElementById("form-inscription-user");
+let inputPrenom        = document.getElementById("reg-prenom");
+let inputNom           = document.getElementById("reg-nom");
+let inputEmail         = document.getElementById("reg-email");
+let inputPassword      = document.getElementById("reg-password");
+let inputPasswordConf  = document.getElementById("reg-password-confirm");
+
+// Administrateur
+let formAdmin          = document.getElementById("form-inscription-admin");
+let admPrenom          = document.getElementById("adm-reg-prenom");
+let admNom             = document.getElementById("adm-reg-nom");
+let admEmail           = document.getElementById("adm-reg-email");
+let admPassword        = document.getElementById("adm-reg-password");
+let admPasswordConf    = document.getElementById("adm-reg-password-confirm");
+
+// ----- Inscription Utilisateur -----
+if (formUser) {
+  formUser.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
     const data = {
-      prenom:     uReg.regPrenom.value,
-      nom:        uReg.regNom.value,
-      email:      uReg.regEmail.value,
-      motDePasse: uReg.regPassword.value
+      prenom:     inputPrenom.value.trim(),
+      nom:        inputNom.value.trim(),
+      email:      inputEmail.value.trim(),
+      motDePasse: inputPassword.value
     };
-    const res = await fetch("/inscription", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-    if (res.ok) {
-      window.location.replace("/user/login");
-    } else {
-      const err = await res.json();
-      alert(err.error);
+
+    // Vérification basique côté client
+    if (!data.prenom || !data.nom || !data.email || !data.motDePasse) {
+      return alert("Merci de remplir tous les champs.");
+    }
+    if (data.motDePasse !== inputPasswordConf.value) {
+      return alert("Les mots de passe ne correspondent pas.");
+    }
+
+    try {
+      const response = await fetch("/inscription", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        // redirection vers la page de connexion utilisateur
+        window.location.replace("/user/login");
+      } else {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Échec de l’inscription");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erreur réseau, réessayez plus tard.");
     }
   });
 }
 
-// Administrateur
-const aReg = document.querySelector(".admin-register-form");
-if (aReg) {
-  aReg.addEventListener("submit", async e => {
-    e.preventDefault();
+// ----- Inscription Administrateur -----
+if (formAdmin) {
+  formAdmin.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
     const data = {
-      prenom: aReg.admRegPrenom.value,
-      nom:    aReg.admRegNom.value,
-      email:  aReg.admRegEmail.value
+      prenom:     admPrenom.value.trim(),
+      nom:        admNom.value.trim(),
+      email:      admEmail.value.trim(),
+      motDePasse: admPassword.value
     };
-    const res = await fetch("/admin/inscription", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-    if (res.ok) {
-      window.location.replace("/admin/login");
-    } else {
-      const err = await res.json();
-      alert(err.error);
+
+    // Vérification basique côté client
+    if (!data.prenom || !data.nom || !data.email || !data.motDePasse) {
+      return alert("Merci de remplir tous les champs.");
+    }
+    if (data.motDePasse !== admPasswordConf.value) {
+      return alert("Les mots de passe ne correspondent pas.");
+    }
+
+    try {
+      const response = await fetch("/admin/inscription", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        // redirection vers la page de connexion admin
+        window.location.replace("/admin/login");
+      } else {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || "Échec de la demande d’inscription");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erreur réseau, réessayez plus tard.");
     }
   });
 }

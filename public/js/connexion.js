@@ -1,52 +1,65 @@
 // public/js/connexion.js
-import { isEmailValid, isPasswordValid } from "./validation.js";
 
-// Utilisateur
+// Formulaire Utilisateur
 const uForm = document.querySelector(".user-login-form");
 if (uForm) {
   uForm.addEventListener("submit", async e => {
     e.preventDefault();
+
     const data = {
-      email:      uForm.userEmail.value,
-      motDePasse: uForm.userPassword.value
+      email:      uForm.querySelector('input[name="email"]').value.trim(),
+      motDePasse: uForm.querySelector('input[name="motDePasse"]').value
     };
-    const res = await fetch("/connexion", {
-      method: "POST",
+
+    const res  = await fetch("/connexion", {
+      method:  "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+      body:    JSON.stringify(data)
     });
-    if (res.redirected) {
-      window.location.replace(res.url);
-    } else if (res.ok) {
-      window.location.replace("/dashboard");
+    const json = await res.json();
+
+    if (res.ok) {
+      // si c'est l'admin, on va sur la page 2FA, sinon sur l'accueil user
+      if (json.admin2FA) {
+        window.location.replace("/admin/code");
+      } else {
+        window.location.replace("/accueil/user");
+      }
     } else {
-      const err = await res.json();
-      alert(err.error);
+      alert(json.error || "Échec de la connexion utilisateur");
     }
   });
 }
 
-// Administrateur
+
+// Formulaire Administrateur
 const aForm = document.querySelector(".admin-login-form");
 if (aForm) {
   aForm.addEventListener("submit", async e => {
     e.preventDefault();
+
     const data = {
-      email:      aForm.adminEmail.value,
-      motDePasse: aForm.adminPassword.value
+      email:      aForm.querySelector('input[name="email"]').value.trim(),
+      motDePasse: aForm.querySelector('input[name="motDePasse"]').value
     };
-    const res = await fetch("/connexion", {
-      method: "POST",
+
+    const res  = await fetch("/connexion", {
+      method:  "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+      body:    JSON.stringify(data)
     });
-    if (res.redirected) {
-      window.location.replace(res.url);
-    } else if (res.ok) {
-      window.location.replace("/admin/code");
+    const json = await res.json();
+
+    if (res.ok) {
+      // même logique : si admin2FA on va sur /admin/code
+      if (json.admin2FA) {
+        window.location.replace("/admin/code");
+      } else {
+        // (idéalement ce cas n'arrive jamais pour un admin)
+        window.location.replace("/accueil/user");
+      }
     } else {
-      const err = await res.json();
-      alert(err.error);
+      alert(json.error || "Échec de la connexion administrateur");
     }
   });
 }

@@ -1,20 +1,22 @@
 // public/js/adminCode.js
-const form = document.querySelector(".admin-code-form");
-if (form) {
-  form.addEventListener("submit", async e => {
+const adminForm = document.querySelector(".admin-code-form");
+if (adminForm) {
+  adminForm.addEventListener("submit", async e => {
     e.preventDefault();
-    const code = form.adminCode.value.trim();
-    if (!/^\d{6}$/.test(code)) return alert("6 chiffres requis");
+    const code = adminForm.querySelector("#admin-code").value.trim();
+
     const res = await fetch("/api/verify-code", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code })
     });
     const json = await res.json();
-    if (res.ok) {
-      window.location.replace(json.redirect);
+
+    if (res.ok && json.verified) {
+      // Front décide de la redirection
+      window.location.replace("/admin-secret");
     } else {
-      alert(json.message);
+      alert(json.error || "Échec de la vérification du code.");
     }
   });
 }

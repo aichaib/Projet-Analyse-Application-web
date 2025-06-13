@@ -34,7 +34,7 @@ passport.use(
             // son mot de passe dans la base de données
             // avec celui envoyé au serveur. On utilise
             // une fonction de bcrypt pour le faire
-            const valide = await bcrypt.compare(password, user.password);
+            const valide = await bcrypt.compare(motDePasse, user.motDePasseHash);
 
             // Si les mot de passe ne concorde pas, on
             // retourne que l'authentification a échoué

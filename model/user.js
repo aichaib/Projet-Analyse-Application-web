@@ -10,10 +10,10 @@ export async function getUserByEmail(email) {
 }
 
 /** Crée un nouvel utilisateur (hash du mot de passe) */
-export async function addUser({ prenom, nom, email, motDePasse, estAdmin = false }) {
+export async function addUser({ prenom, nom, email, motDePasse}) {
   const motDePasseHash = await bcrypt.hash(motDePasse, 10);
   return prisma.utilisateur.create({
-    data: { prenom, nom, email, motDePasseHash, estAdmin }
+    data: { prenom, nom, email, motDePasseHash }
   });
 }
 

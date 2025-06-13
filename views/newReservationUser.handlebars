@@ -1,9 +1,8 @@
-<div style="margin-top: 0px;"></div>
 
 <div class="main-content">
   <div class="reservation-page">
     <div>
-      <a href="/" class="btn-retour" style="margin-bottom: 0px; display: inline-block;">Retour à la page d'accueil</a>
+      <a href="/accueil/user" class="btn-retour" style="margin-bottom: 0px; display: inline-block;">Retour à la page d'accueil</a>
       <div class="reservation-container">
         <h2>Rechercher une salle :</h2>
         <form id="formRecherche" class="form-recherche">
@@ -27,7 +26,7 @@
           <input type="date" id="dateReservation" placeholder="Sélectionner la Date">
           <label for="heureReservation">Heure :</label>
           <input type="time" id="heureReservation" placeholder="Sélectionner l'heure">
-          <button type="button" id="btnRechercher" class="btn-reserver">Rechercher</button>
+          <button type="submit" id="btnRechercher" class="btn-reserver">Rechercher</button>
         </form>
       </div>
     </div>
@@ -42,7 +41,3 @@
   </div>
 </div>
 
-<footer class="footer">
-    Connecté comme : {{user.email}}
-</footer>
-<script src="/js/reservation.js"></script> 
