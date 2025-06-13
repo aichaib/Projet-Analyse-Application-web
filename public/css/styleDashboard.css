@@ -1,0 +1,97 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f5f5f5;
+  color: #333;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0b2c4d;
+  color: #fff;
+  padding: 1rem 2rem;
+}
+
+.header a {
+  color: #fff;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.header a:hover {
+  color: #ff4d4d;
+}
+
+.container {
+  display: flex;
+  height: calc(100vh - 64px);
+}
+
+.sidebar {
+  background: #0b2c4d;
+  width: 200px;
+  padding: 2rem 1rem;
+}
+
+.sidebar a {
+  display: block;
+  color: #fff;
+  padding: 0.6rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  background: #123e63;
+}
+
+.main {
+  flex: 1;
+  padding: 3rem;
+}
+
+.main h1 {
+  margin-bottom: 2rem;
+  color: #0b2c4d;
+  font-size: 1.6rem;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 250px;
+}
+
+.btn-large,
+.btn-small {
+  background: #0b2c4d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.8rem;
+  font-size: 1rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn-small {
+  font-size: 0.9rem;
+  padding: 0.6rem;
+}
+
+.btn-large:hover,
+.btn-small:hover {
+  background: #144067;
+}
+
+.footer {
+  text-align: center;
+  padding: 1rem;
+  background: #e0e0e0;
+  font-size: 0.9rem;
+}
