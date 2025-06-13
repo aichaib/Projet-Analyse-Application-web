@@ -10,6 +10,7 @@ import {
   deleteCode
 } from "./model/verificationCode.js";
 
+import { buildCalendar,monthNames } from "./model/calendareController.js";
 import {
   listSalles,
   createSalle,
@@ -43,8 +44,8 @@ router.get("/", (req, res) => {
 // — Inscription utilisateur (GET /user/register) —
 router.get("/user/register", (req, res) => {
   res.render("userInscription", {
-    titre:   "Inscription Utilisateur",
-    styles:  ["/css/style.css","/css/form.css"],
+    titre: "Inscription Utilisateur",
+    styles: ["/css/style.css", "/css/form.css"],
     scripts: ["/js/inscription.js"]
   });
 });
@@ -52,8 +53,8 @@ router.get("/user/register", (req, res) => {
 // — Connexion utilisateur (GET /user/login) —
 router.get("/user/login", (req, res) => {
   res.render("userLogin", {
-    titre:   "Connexion Utilisateur",
-    styles:  ["/css/style.css","/css/form.css"],
+    titre: "Connexion Utilisateur",
+    styles: ["/css/style.css", "/css/form.css"],
     scripts: ["/js/connexion.js"]
   });
 });
@@ -61,8 +62,8 @@ router.get("/user/login", (req, res) => {
 // — Inscription admin (GET /admin/register) —
 router.get("/admin/register", (req, res) => {
   res.render("adminInscription", {
-    titre:   "Inscription Administrateur",
-    styles:  ["/css/style.css","/css/form.css"],
+    titre: "Inscription Administrateur",
+    styles: ["/css/style.css", "/css/form.css"],
     scripts: ["/js/inscription.js"]
   });
 });
@@ -70,17 +71,17 @@ router.get("/admin/register", (req, res) => {
 // — Connexion admin (GET /admin/login) —
 router.get("/admin/login", (req, res) => {
   res.render("adminLogin", {
-    titre:   "Connexion Administrateur",
-    styles:  ["/css/style.css","/css/form.css"],
+    titre: "Connexion Administrateur",
+    styles: ["/css/style.css", "/css/form.css"],
     scripts: ["/js/connexion.js"]
   });
 });
 
 // — Formulaire de saisie du code 2FA admin —
-router.get("/admin/code",  (req, res) => {
+router.get("/admin/code", (req, res) => {
   res.render("adminCode", {
-    titre:   "Code Administrateur",
-    styles:  ["/css/style.css","/css/form.css"],
+    titre: "Code Administrateur",
+    styles: ["/css/style.css", "/css/form.css"],
     scripts: ["/js/adminCode.js"]
   });
 });
@@ -88,8 +89,8 @@ router.get("/admin/code",  (req, res) => {
 // — Tableau de bord secret admin —
 router.get("/admin-secret", (req, res) => {
   res.render("adminSecret", {
-    titre:   "Page secrète admin",
-    styles:  ["/css/style.css"],
+    titre: "Page secrète admin",
+    styles: ["/css/style.css"],
     scripts: ["/js/adminSecret.js"]
   });
 });
@@ -115,6 +116,9 @@ router.post("/connexion", (req, res, next) => {
 
       return req.logIn(user, loginErr => {
         if (loginErr) return next(loginErr);
+        if (!req.session.user) {
+          req.session.user = user;
+        }
         // on renvoie juste un flag, la route ne redirige pas
         return res.status(200).json({ admin2FA: true });
       });
@@ -122,8 +126,11 @@ router.post("/connexion", (req, res, next) => {
 
     // Utilisateur “simple”
     await updateLastLogin(user.id);
-     req.logIn(user, loginErr => {
+    req.logIn(user, loginErr => {
       if (loginErr) return next(loginErr);
+      if (!req.session.user) {
+        req.session.user = user;
+      }
       return res.status(200).json({ success: true });
     });
   })(req, res, next);
@@ -149,10 +156,10 @@ router.post("/inscription", async (req, res) => {
 // — traite la demande d'inscription admin (envoi code au super-admin) —
 router.post("/admin/inscription", async (req, res) => {
   const { prenom, nom, email } = req.body;
-  if (!prenom||!nom||!isEmailValid(email)) {
+  if (!prenom || !nom || !isEmailValid(email)) {
     return res.status(400).json({ error: "Données invalides" });
   }
-  const code    = Math.floor(100000 + Math.random() * 900000).toString();
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
   const expires = new Date(Date.now() + 3 * 60 * 1000);
   await createCodeForEmail(email, code, expires);
   await sendInscriptionVerificationCode(prenom, nom, email, code);
@@ -215,10 +222,10 @@ router.post("/api/inscription/verify", async (req, res) => {
 
 router.get("/accueil/user", (req, res) => {
   res.render("accueilUser", {
-    titre:   "Page d'accueil utilisateur",
-    styles:  ["/css/style.css", "/css/pageUser.css"],
+    titre: "Page d'accueil utilisateur",
+    styles: ["/css/style.css", "/css/pageUser.css"],
     scripts: ["/js/reservation.js"],
-    user:    req.session.user
+    user: req.session.user
   });
 });
 
@@ -240,10 +247,10 @@ router.get("/salles", async (req, res, next) => {
 router.post("/salles", async (req, res, next) => {
   try {
     const { nom, capacite, emplacement } = req.body;
-    await createSalle({ 
-      nom, 
-      capacite: parseInt(capacite, 10), 
-      emplacement 
+    await createSalle({
+      nom,
+      capacite: parseInt(capacite, 10),
+      emplacement
     });
     res.redirect("/salles");
   } catch (err) {
@@ -297,17 +304,33 @@ router.delete("/salles/:id", async (req, res, next) => {
 // GET /reservations
 // Affiche les réservations de l’utilisateur connecté
 router.get("/reservations", async (req, res, next) => {
+  console.log("Session utilisateur:", req.session.user);
   if (!req.session.user) {
     return res.redirect("/user/login");
   }
   try {
-    const userId = req.session.user.id;
-    const reservations = await listReservations(userId);
-    res.render("reservations/listReservationUser", {
+    const now   = new Date();
+    const month = Number(req.query.month) >= 0
+                ? Number(req.query.month)
+                : now.getMonth();
+    const year  = Number(req.query.year) || now.getFullYear();
+
+    // 3) Charger les réservations de l’utilisateur
+    const allResa = await listReservations(req.session.user.id);
+
+    // 4) Construire le calendrier
+    const days      = buildCalendar(month, year, allResa);
+    const weekdays  = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+    const monthYear = `${monthNames[month]} ${year}`;
+    res.render("listReservation", {
       titres: "Mes réservations",
-      styles: ["/css/style.css","/css/pageUser.css"],
-      scripts: ["/js/reservation.js"],
-      reservations,
+      styles: ["/css/style.css", "/css/calendar.css"],
+      scripts: ["/js/reservation.js","/js/calendar.js"],
+      weekdays,
+      days,
+      monthYear,
+      month,
+      year,
       user: req.session.user
     });
   } catch (err) {
@@ -318,14 +341,20 @@ router.get("/reservations", async (req, res, next) => {
 // GET /reservations/new
 // Formulaire de création d’une réservation
 router.get("/reservations/new", async (req, res, next) => {
+  console.log("Session utilisateur:", req.session.user);
   if (!req.session.user) {
     return res.redirect("/user/login");
   }
   try {
     const salles = await getSalles();
+    [
+      { day: 30, inMonth: false, reservations: [] },
+      { day: 31, inMonth: false, reservations: [] },
+      { day: 1, inMonth: true, reservations: [ /* réserves ce jour */] },
+    ]
     res.render("newReservationUser", {
       titre: "Nouvelle réservation",
-      styles: ["/css/style.css","/css/pageUser.css"],
+      styles: ["/css/style.css", "/css/reservation.css"],
       scripts: ["/js/reservation.js"],
       salles,
       user: req.session.user
@@ -358,15 +387,16 @@ router.post("/reservations", async (req, res, next) => {
   }
 });
 
-// DELETE /reservations/:id
 // Annule une réservation
 router.delete("/reservations/:id", async (req, res, next) => {
   if (!req.session.user) {
     return res.status(401).json({ error: "Non authentifié." });
   }
   try {
-    const id = parseInt(req.params.id, 10);
-    await cancelReservation(id, req.session.user.id);
+    await cancelReservation(
+      parseInt(req.params.id, 10),
+      req.session.user.id
+    );
     res.json({ success: true });
   } catch (err) {
     next(err);
@@ -401,7 +431,7 @@ router.post("/api/reservations", async (req, res, next) => {
       utilisateurId: req.session.user.id,
       salleId: parseInt(salleId, 10),
       dateDebut: date + "T" + heure,
-      dateFin:   date + "T" + heure  // ou calculer fin +1h par défaut
+      dateFin: date + "T" + heure  // ou calculer fin +1h par défaut
     });
     res.json({ reservation, message: "Réservation réussie" });
   } catch (err) {
@@ -409,7 +439,7 @@ router.post("/api/reservations", async (req, res, next) => {
   }
 });
 
- // — déconnexion —
+// — déconnexion —
 router.get("/deconnexion", (req, res) => {
   req.logout((err) => {
     if (err) {

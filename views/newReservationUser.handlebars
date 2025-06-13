@@ -1,11 +1,13 @@
-
 <div class="main-content">
   <div class="reservation-page">
-    <div>
-      <a href="/accueil/user" class="btn-retour" style="margin-bottom: 0px; display: inline-block;">Retour à la page d'accueil</a>
-      <div class="reservation-container">
-        <h2>Rechercher une salle :</h2>
-        <form id="formRecherche" class="form-recherche">
+  
+    <!-- COLONNE GAUCHE : RECHERCHE -->
+    <div class="reservation-container">
+      <a href="/accueil/user" class="btn-retour">← Retour</a>
+      <h2>Rechercher une salle :</h2>
+      <form id="formRecherche" class="form-recherche">
+      
+        <div class="field-group">
           <label for="capacite">Capacité :</label>
           <select id="capacite">
             <option value="">Sélectionner la capacité</option>
@@ -15,6 +17,9 @@
             <option value="50">50</option>
             <option value="100">100</option>
           </select>
+        </div>
+        
+        <div class="field-group">
           <label for="equipement">Équipements :</label>
           <select id="equipement">
             <option value="">Sélectionner les équipements</option>
@@ -22,22 +27,30 @@
             <option value="Tableau">Tableau</option>
             <option value="Ordinateur">Ordinateur</option>
           </select>
+        </div>
+        
+        <div class="field-group">
           <label for="dateReservation">Date :</label>
-          <input type="date" id="dateReservation" placeholder="Sélectionner la Date">
+          <input type="date" id="dateReservation" placeholder="Sélectionner la date">
+        </div>
+        
+        <div class="field-group">
           <label for="heureReservation">Heure :</label>
           <input type="time" id="heureReservation" placeholder="Sélectionner l'heure">
-          <button type="submit" id="btnRechercher" class="btn-reserver">Rechercher</button>
-        </form>
-      </div>
+        </div>
+        
+        <button type="submit" id="btnRechercher" class="btn-action">Rechercher</button>
+      </form>
     </div>
-    <!-- Titre résultat au-dessus du bloc -->
-    <div style="display: flex; flex-direction: column; align-items: center;">
+    
+    <!-- COLONNE DROITE : RÉSULTAT -->
+    <div class="reservation-results">
       <span class="titre-resultat">Résultat :</span>
       <div class="grille-salles">
-        <div id="resultatsSalles" style="flex:1;"></div>
-        <button type="button" class="btn-reserver" style="margin-top: 24px;">Réserver</button>
+        <div id="resultatsSalles"></div>
+        <button type="button" class="btn-action  btn-res">Réserver</button>
       </div>
     </div>
+  
   </div>
 </div>
-

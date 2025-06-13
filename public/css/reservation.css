@@ -1,0 +1,141 @@
+/* ── Variables de couleur ── */
+:root {
+  --primary:    #0a2e61;
+  --light-bg:   #f5f5f5;
+  --grey-bg:    #e9e9e9;
+  --text-dark:  #333;
+  --text-light: #fff;
+}
+
+/* ── Mise en page globale ── */
+.reservation-page {
+  display: flex;
+  flex: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 2rem;
+  background: var(--light-bg);
+
+}
+
+.main-content {
+  padding-top: 50px; /* ← ajuste à la hauteur réelle de ton header */
+}
+
+/* ── Colonne gauche fixe ── */
+.reservation-container {
+  position: relative;
+  flex:none;            /* largeur fixe */
+  background: #fff;
+  width: 300px;
+  padding: 5rem 1.5rem 1.5rem;
+  border-radius: .75rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+}
+
+/* ── Bouton Retour ── */
+.btn-retour {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: var(--grey-bg);
+  color: var(--text-dark);
+  padding: .5rem 1rem;
+  border-radius: 1rem;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: opacity .2s;
+}
+.btn-retour:hover {
+  opacity: .8;
+}
+
+/* ── Formulaire ── */
+.form-recherche {
+  margin-top: 2rem;           /* décale sous le titre */
+}
+.field-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+.field-group label {
+  margin-bottom: .5rem;
+  color: var(--text-dark);
+}
+.field-group select,
+.field-group input {
+  width: 100%;
+  padding: .75rem;
+  border: none;
+  border-radius: 1rem;
+  background: var(--grey-bg);
+  font-size: 1rem;
+}
+
+/* ── Bouton Rechercher & Réserver ── */
+.btn-action {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: .75rem;
+  background: var(--primary);
+  color: var(--text-light);
+  border: none;
+  border-radius: .5rem;
+  font-size: 1.1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.btn-action:hover {
+  opacity: .9;
+}
+
+.btn-res{
+    max-width: 100px;
+}
+
+/* ── Colonne droite ── */
+.reservation-results {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.titre-resultat {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: var(--text-dark);
+}
+.grille-salles {
+  width: 100%;
+  max-width: 600px;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: .75rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  min-height: unset;
+}
+.grille-salles #resultatsSalles {
+  flex: none;
+  width: 100%;
+}
+/* ── Responsive (mobile) ── */
+@media (max-width: 768px) {
+  .reservation-page {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  .reservation-container,
+  .reservation-results {
+    flex: none;
+    width: 100%;
+  }
+}
