@@ -18,6 +18,7 @@ model Utilisateur {
   nom              String
   email            String              @unique
   motDePasseHash   String
+  isAdmin          Boolean             @default(false)
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @default(now()) @updatedAt
   lastLogin         DateTime?
@@ -26,12 +27,12 @@ model Utilisateur {
 }
 model VerificationCode {
   id                Int           @id @default(autoincrement())
-  utilisateurId     Int
+  utilisateurId     Int?
   email             String
   code              String
   createdAt         DateTime      @default(now())
   expiresAt         DateTime
-  utilisateur       Utilisateur  @relation(fields: [utilisateurId], references: [id])
+  utilisateur       Utilisateur?  @relation(fields: [utilisateurId], references: [id])
    @@index([utilisateurId])
 }
 

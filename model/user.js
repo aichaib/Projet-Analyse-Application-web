@@ -10,12 +10,14 @@ export async function getUserByEmail(email) {
 }
 
 /** Crée un nouvel utilisateur (hash du mot de passe) */
-export async function addUser({ prenom, nom, email, motDePasse}) {
-  const motDePasseHash = await bcrypt.hash(motDePasse, 10);
+export async function addUser({ prenom, nom, email, motDePasse,isAdmin = false  }) {
+  console.log("Création utilisateur :", email);
+  const motDePasseHash = await bcrypt.hash(motDePasse, 10);   // hachage OK
   return prisma.utilisateur.create({
-    data: { prenom, nom, email, motDePasseHash }
+    data: { prenom, nom, email, motDePasseHash,isAdmin }              // champ exact du schéma
   });
 }
+
 
 /** Met à jour la date du dernier login */
 export async function updateLastLogin(utilisateurId) {
