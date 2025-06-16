@@ -7,10 +7,10 @@ import {
   createCodeForUser,
   createCodeForEmail,
   getLatestCodeByUser,
-  deleteCode
+  deleteCode, getLatestCodeByEmail
 } from "./model/verificationCode.js";
 
-import { buildCalendar,monthNames } from "./model/calendareController.js";
+import { buildCalendar, monthNames } from "./model/calendareController.js";
 import {
   listSalles,
   createSalle,
@@ -29,6 +29,7 @@ import {
 import { isEmailValid, isPasswordValid } from "./validation.js";
 import { sendVerificationCode, sendInscriptionVerificationCode } from "./model/email.js";
 
+import bcrypt from "bcrypt";
 const router = Router();
 
 // — accueil —
@@ -58,44 +59,6 @@ router.get("/user/login", (req, res) => {
     scripts: ["/js/connexion.js"]
   });
 });
-
-// — Inscription admin (GET /admin/register) —
-router.get("/admin/register", (req, res) => {
-  res.render("adminInscription", {
-    titre: "Inscription Administrateur",
-    styles: ["/css/style.css", "/css/form.css"],
-    scripts: ["/js/inscription.js"]
-  });
-});
-
-// — Connexion admin (GET /admin/login) —
-router.get("/admin/login", (req, res) => {
-  res.render("adminLogin", {
-    titre: "Connexion Administrateur",
-    styles: ["/css/style.css", "/css/form.css"],
-    scripts: ["/js/connexion.js"]
-  });
-});
-
-// — Formulaire de saisie du code 2FA admin —
-router.get("/admin/code", (req, res) => {
-  res.render("adminCode", {
-    titre: "Code Administrateur",
-    styles: ["/css/style.css", "/css/form.css"],
-    scripts: ["/js/adminCode.js"]
-  });
-});
-
-// — Tableau de bord secret admin —
-router.get("/admin-secret", (req, res) => {
-  res.render("adminSecret", {
-    titre: "Page secrète admin",
-    styles: ["/css/style.css"],
-    scripts: ["/js/adminSecret.js"]
-  });
-});
-
-
 // — traite la connexion (utilisateur OU admin) —
 router.post("/connexion", (req, res, next) => {
   const { email, motDePasse } = req.body;
@@ -106,24 +69,6 @@ router.post("/connexion", (req, res, next) => {
   passport.authenticate("local", async (err, user, info) => {
     if (err) return next(err);
     if (!user) return res.status(401).json(info);
-
-    // Super-admin → on déclenche le 2FA
-    if (user.email === process.env.EMAIL_USER) {
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-      const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-      await createCodeForUser(user.id, code, expiresAt);
-      await sendVerificationCode(user.email, code);
-
-      return req.logIn(user, loginErr => {
-        if (loginErr) return next(loginErr);
-        if (!req.session.user) {
-          req.session.user = user;
-        }
-        // on renvoie juste un flag, la route ne redirige pas
-        return res.status(200).json({ admin2FA: true });
-      });
-    }
-
     // Utilisateur “simple”
     await updateLastLogin(user.id);
     req.logIn(user, loginErr => {
@@ -136,6 +81,14 @@ router.post("/connexion", (req, res, next) => {
   })(req, res, next);
 });
 
+router.get("/accueil/user", (req, res) => {
+  res.render("accueilUser", {
+    titre: "Page d'accueil utilisateur",
+    styles: ["/css/style.css", "/css/pageUser.css"],
+    scripts: ["/js/reservation.js"],
+    user: req.session.user
+  });
+});
 // — traite l'inscription utilisateur pure —
 router.post("/inscription", async (req, res) => {
   const { prenom, nom, email, motDePasse } = req.body;
@@ -146,6 +99,7 @@ router.post("/inscription", async (req, res) => {
     await addUser({ prenom, nom, email, motDePasse });
     res.status(201).json({ message: "Inscription réussie" });
   } catch (e) {
+    console.error("Erreur d'inscription utilisateur :", e);
     if (e.code === "P2002") {
       return res.status(409).json({ error: "Cet e-mail est déjà utilisé." });
     }
@@ -153,78 +107,186 @@ router.post("/inscription", async (req, res) => {
   }
 });
 
+
+// — Inscription admin (GET /admin/register) —
+
 // — traite la demande d'inscription admin (envoi code au super-admin) —
-router.post("/admin/inscription", async (req, res) => {
-  const { prenom, nom, email } = req.body;
-  if (!prenom || !nom || !isEmailValid(email)) {
-    return res.status(400).json({ error: "Données invalides" });
+
+function requireAuth(req, res, next) {
+  if (req.session && req.session.user && req.session.user.adminAuth) {
+    return next();
+  } else {
+    return res.redirect("/admin/login");
   }
+}
+
+
+router.post("/admin/inscription", async (req, res) => {
+  const { prenom, nom, email, motDePasse } = req.body;
+  if (req.session.pendingInscriptionEmail === email) {
+    return res.json({ next: "/admin/inscription/code" });
+  }
+  req.session.pendingInscriptionEmail = email;
+  req.session.pendingAdminInfos = { prenom, nom, motDePasse };
+
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   const expires = new Date(Date.now() + 3 * 60 * 1000);
+
   await createCodeForEmail(email, code, expires);
+
   await sendInscriptionVerificationCode(prenom, nom, email, code);
   return res.status(200).json({ message: "Demande envoyée au super-admin" });
 });
 
+router.get("/admin/register", (req, res) => {
+  res.render("adminInscription", {
+    titre: "Inscription Administrateur",
+    styles: ["/css/style.css", "/css/form.css"],
+    scripts: ["/js/inscription.js"]
+  });
+});
+
+router.get("/admin/register/code", (req, res) => {
+  if (!req.session.pendingInscriptionEmail) {
+    return res.redirect("/admin/login");
+  }
+  res.render("adminSecret",
+    {
+      titre: "Code d'inscription admin",
+      styles: ["/css/style.css", "/css/form.css"],
+      scripts: ["/js/adminCode.js"]
+    });
+});
+
+// — Connexion admin (GET /admin/login) —
+router.get("/admin/login", (req, res) => {
+  res.render("adminLogin", {
+    titre: "Connexion Administrateur",
+    styles: ["/css/style.css", "/css/form.css"],
+    scripts: ["/js/adminLogin.js"]
+  });
+});
+
+// — Formulaire de saisie du code 2FA admin —
+router.get("/admin/code", (req, res) => {
+  if (!req.session.pendingAdminEmail) {
+    return res.redirect("/admin/login");
+  }
+  res.render("adminCode", {
+    titre: "Code Administrateur",
+    styles: ["/css/style.css", "/css/form.css"],
+    scripts: ["/js/adminCode.js"]
+  });
+});
+
+
+
+// --- Traitement de la connexion admin ---
+router.post("/admin/login", (req, res, next) => {
+  const { email, motDePasse } = req.body;
+  if (!isEmailValid(email) || !isPasswordValid(motDePasse)) {
+    return res.status(400).json({ error: "Email ou mot de passe invalide." });
+  }
+  passport.authenticate("local", async (err, user, info) => {
+    if (!user || !user.isAdmin) { 
+      return res.status(401).json({ error: "Accès refusé." });
+    }
+    console.log("Résultat passport :", { err, user, info })
+    if (err) return next(err);
+    if (!user) {
+      return res.status(401).json({ error: "Accès refusé." });
+    }
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    await createCodeForUser(user.id, user.email, code, expiresAt);
+
+    await sendVerificationCode(user.email, code);
+    console.log("Code 2FA envoyé :", user.email, ":", code);
+
+    req.session.pendingAdminEmail = user.email;
+    return res.json({ admin2FA: true });
+  })(req, res, next);
+});
+
+
 // POST /api/verify-code — validation du 2FA admin
-router.post("/api/verify-code", async (req, res) => {
+// POST /admin/verify-code — validation du 2FA admin
+router.post("/admin/verify-code", async (req, res) => {
   const { code } = req.body;
-  if (!code) {
-    return res.status(400).json({ error: "Code manquant." });
+  const email = req.session.pendingAdminEmail;
+
+  if (!email) {
+    return res.status(400).json({ error: "Session expirée ; reconnectez-vous." });
   }
 
-  // Récupère le dernier code pour l’utilisateur connecté
-  const entry = await getLatestCodeForUser(req.user.id);
-  if (!entry) {
-    return res.status(404).json({ error: "Aucune demande trouvée." });
-  }
-  if (entry.expiresAt < new Date()) {
+  const entry = await getLatestCodeByEmail(email);
+  if (!entry || entry.expiresAt < new Date()) {
     return res.status(410).json({ error: "Code expiré." });
   }
 
-  const valid = await bcrypt.compare(code, entry.code);
+  // Très important : s'assurer que les deux codes sont des chaînes et bien nettoyés
+  const inputCode = code.toString().trim(); // <- assure que c'est bien une string
+  const valid = await bcrypt.compare(inputCode, entry.code);
+
   if (!valid) {
+    console.log("Code tapé :", inputCode);
+    console.log("Code attendu (hashé) :", entry.code);
     return res.status(401).json({ error: "Code invalide." });
   }
 
-  // tout est bon, supprimez le code
+  const user = await getUserByEmail(email);
   await deleteCode(entry.id);
-
-  // On ne redirige pas ici, on renvoie un flag
-  return res.status(200).json({ verified: true });
+  req.session.user = {
+    id: user.id,
+    email: user.email,
+    prenom: user.prenom,
+    nom: user.nom,
+    adminAuth: true,
+  };
+  delete req.session.pendingAdminEmail;
+  return res.json({ redirect: "/accueil/admin" });
 });
 
-// POST /api/inscription/verify — validation du code d’inscription utilisateur
-router.post("/api/inscription/verify", async (req, res) => {
+router.post("/admin/inscription/verify", async (req, res) => {
   const { code } = req.body;
-  if (!code) {
-    return res.status(400).json({ error: "Code manquant." });
-  }
+  const email = req.session.pendingInscriptionEmail;
+  console.log("Vérification d'inscription pour :", email, "avec le code :", code);
+  if (!email) return res.status(400).json({ error: "Session perdue" });
 
-  const entry = await getLatestCodeForEmail(req.session.email);
-  if (!entry) {
-    return res.status(404).json({ error: "Code introuvable." });
-  }
-  if (entry.expiresAt < new Date()) {
+  const entry = await getLatestCodeByEmail(email);
+  if (!entry || entry.expiresAt < new Date()) {
     return res.status(410).json({ error: "Code expiré." });
   }
-
-  const valid = await bcrypt.compare(code, entry.code);
-  if (!valid) {
+  if (!(await bcrypt.compare(code.toString(), entry.code))) {
     return res.status(401).json({ error: "Code invalide." });
   }
 
-  // supprimez le code et créez l’utilisateur si nécessaire…
+  // tout est bon : suppression du code et création de l’admin réel
   await deleteCode(entry.id);
+  const infos = req.session.pendingAdminInfos;
+  delete req.session.pendingInscriptionEmail;
+  delete req.session.pendingAdminInfos;
 
-  return res.status(200).json({ verified: true });
+  await addUser({
+    prenom: infos.prenom,
+    nom: infos.nom,
+    email,
+    motDePasse: infos.motDePasse,
+    isAdmin: true
+  });
+  return res.json({ redirect: "/admin/login" });
 });
 
-router.get("/accueil/user", (req, res) => {
-  res.render("accueilUser", {
-    titre: "Page d'accueil utilisateur",
-    styles: ["/css/style.css", "/css/pageUser.css"],
-    scripts: ["/js/reservation.js"],
+
+router.get("/accueil/admin", requireAuth,(req, res) => {
+  if (!req.session.user || !req.session.user.adminAuth) {
+    return res.redirect("/admin/login");
+  }
+  res.render("dashboardAdmin", {
+    titre: "Page d'accueil administrateur",
+    styles: ["/css/style.css", "/css/styleDashboard.css"],
+    scripts: ["/js/main.js"],
     user: req.session.user
   });
 });
@@ -233,7 +295,7 @@ router.get("/accueil/user", (req, res) => {
 
 // GET /salles
 // Affiche la liste de toutes les salles
-router.get("/salles", async (req, res, next) => {
+router.get("/salles",requireAuth, async (req, res, next) => {
   try {
     const salles = await listSalles();
     res.render("salles/list", { salles });
@@ -244,7 +306,7 @@ router.get("/salles", async (req, res, next) => {
 
 // POST /salles
 // Crée une nouvelle salle
-router.post("/salles", async (req, res, next) => {
+router.post("/salles",requireAuth, async (req, res, next) => {
   try {
     const { nom, capacite, emplacement } = req.body;
     await createSalle({
@@ -260,7 +322,7 @@ router.post("/salles", async (req, res, next) => {
 
 // GET /salles/:id/edit
 // Formulaire d’édition d’une salle
-router.get("/salles/:id/edit", async (req, res, next) => {
+router.get("/salles/:id/edit",requireAuth, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     const salle = await findSalleById(id);
@@ -309,23 +371,23 @@ router.get("/reservations", async (req, res, next) => {
     return res.redirect("/user/login");
   }
   try {
-    const now   = new Date();
+    const now = new Date();
     const month = Number(req.query.month) >= 0
-                ? Number(req.query.month)
-                : now.getMonth();
-    const year  = Number(req.query.year) || now.getFullYear();
+      ? Number(req.query.month)
+      : now.getMonth();
+    const year = Number(req.query.year) || now.getFullYear();
 
     // 3) Charger les réservations de l’utilisateur
     const allResa = await listReservations(req.session.user.id);
 
     // 4) Construire le calendrier
-    const days      = buildCalendar(month, year, allResa);
-    const weekdays  = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+    const days = buildCalendar(month, year, allResa);
+    const weekdays = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
     const monthYear = `${monthNames[month]} ${year}`;
     res.render("listReservation", {
       titres: "Mes réservations",
       styles: ["/css/style.css", "/css/calendar.css"],
-      scripts: ["/js/reservation.js","/js/calendar.js"],
+      scripts: ["/js/reservation.js", "/js/calendar.js"],
       weekdays,
       days,
       monthYear,
