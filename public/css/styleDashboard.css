@@ -1,97 +1,95 @@
-body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f5f5f5;
-  color: #333;
+/* Arrière-plan général */
+.page-admin-bg {
+  padding-top: 90px;
+  min-height: 100vh;
+  background: #f5f7fa;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #0b2c4d;
-  color: #fff;
-  padding: 1rem 2rem;
-}
-
-.header a {
-  color: #fff;
-  font-size: 0.9rem;
-  text-decoration: none;
-}
-
-.header a:hover {
-  color: #ff4d4d;
-}
-
-.container {
-  display: flex;
-  height: calc(100vh - 64px);
-}
-
-.sidebar {
-  background: #0b2c4d;
-  width: 200px;
-  padding: 2rem 1rem;
-}
-
-.sidebar a {
-  display: block;
-  color: #fff;
-  padding: 0.6rem 1rem;
-  margin-bottom: 0.5rem;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  text-decoration: none;
-}
-
-.sidebar a:hover {
-  background: #123e63;
-}
-
-.main {
-  flex: 1;
-  padding: 3rem;
-}
-
-.main h1 {
-  margin-bottom: 2rem;
-  color: #0b2c4d;
-  font-size: 1.6rem;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 250px;
-}
-
-.btn-large,
-.btn-small {
-  background: #0b2c4d;
-  color: #fff;
+/* Sidebar */
+.sidebar-card {
+  background-color: #0b2c4d;
   border: none;
+  border-radius: 8px;
+  width: 260px;
+}
+
+.page-admin-bg .col-lg-3 {
+  flex: 0 0 auto !important;
+  width: auto !important;
+}
+
+.sidebar-card .nav-link {
+  color: white;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+  width: fit-content;
+  min-width: 220px;
+  max-width: 100%;
   border-radius: 6px;
-  padding: 0.8rem;
+  transition: background 0.3s ease;
+}
+
+.main-card a.btn {
+  margin: 0.5rem; /* ajoute de l'espace entre les boutons */
+  min-width: 220px; /* taille uniforme */
+}
+
+/* Réduction de la taille des boutons */
+.btn.btn-lg {
   font-size: 1rem;
-  cursor: pointer;
-  text-align: center;
+  padding: 0.6rem 1rem;
 }
 
-.btn-small {
+.btn.btn-sm {
   font-size: 0.9rem;
-  padding: 0.6rem;
+  padding: 0.5rem 0.9rem;
 }
 
-.btn-large:hover,
-.btn-small:hover {
-  background: #144067;
+.sidebar-card .nav-link:hover {
+  background-color: #144067;
+  text-decoration: none;
 }
 
-.footer {
-  text-align: center;
-  padding: 1rem;
-  background: #e0e0e0;
-  font-size: 0.9rem;
+/* Carte principale */
+.main-card {
+  border-radius: 20px;
+  padding: 2rem;
+  display: flex;
+  margin: 100px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.dashboard-title {
+  font-size: 1.5rem;
+  color: #0b2c4d;
+  margin-bottom: 2rem;
+}
+
+/* Boutons dashboard */
+.dashboard-btn-primary {
+  background-color: #0b2c4d;
+  color: white;
+  font-size: 0.95rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+.dashboard-btn-primary:hover {
+  background-color: #144067;
+  color: white;
+}
+.dashboard-btn-secondary {
+  border: 1px solid #0b2c4d;
+  color: #0b2c4d;
+  font-size: 0.85rem;
+  padding: 0.4rem 1.2rem;
+  border-radius: 6px;
+}
+.dashboard-btn-secondary:hover {
+  background-color: #0b2c4d;
+  color: white;
 }
