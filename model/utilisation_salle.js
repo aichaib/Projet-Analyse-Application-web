@@ -50,3 +50,30 @@ export const getSalles = async () => {
     const salles = await prisma.salle.findMany();
     return salles;
 };
+
+/**
+ * Récupère l'historique des réservations (passées) d'un utilisateur.
+ * @param {number} utilisateurId - L'ID de l'utilisateur.
+ * @returns {Promise<UtilisationSalle[]>}
+ */
+export async function getHistoriqueReservations(utilisateurId) {
+  try {
+    return await prisma.utilisationSalle.findMany({
+      where: {
+        utilisateurId: utilisateurId,
+        dateFin: {
+          lt: new Date(), // lt = Less Than (inférieur à la date actuelle)
+        },
+      },
+      include: {
+        salle: true, // Inclure les détails de la salle
+      },
+      orderBy: {
+        dateDebut: 'desc', // Les plus récentes en premier
+      },
+    });
+  } catch (err) {
+    console.error("Erreur lors de la récupération de l'historique:", err);
+    throw err;
+  }
+}

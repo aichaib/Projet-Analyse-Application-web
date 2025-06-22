@@ -8,7 +8,7 @@ if (formRecherche) {
   const dateInput        = document.getElementById("dateReservation");
   const heureInput       = document.getElementById("heureReservation");
   const resultatsContainer = document.getElementById("resultatsSalles");
-  const btnReserverGlobal  = document.querySelector(".grille-salles .btn-reserver");
+  const btnReserverGlobal  = document.querySelector(".btn-reserver");
 
   let selectedSalleId = null;
 
@@ -34,6 +34,8 @@ if (formRecherche) {
   const fetchAndDisplaySalles = async () => {
     resultatsContainer.innerHTML = "";
     selectedSalleId = null;
+    btnReserverGlobal.disabled = true;
+
     try {
       const res = await fetch("/api/salles");
       if (!res.ok) throw new Error("Impossible de charger les salles");
@@ -49,6 +51,7 @@ if (formRecherche) {
         resultatsContainer.innerHTML = "<p>Aucune salle trouvée.</p>";
       } else {
         filtres.forEach(addSalleToClient);
+        btnReserverGlobal.disabled = false;
       }
     } catch (err) {
       console.error(err);

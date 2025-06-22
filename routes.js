@@ -20,10 +20,11 @@ import {
 } from "./model/gestion_salle.js";
 
 import {
-  getSalles,              // pour l’API publique
-  listReservations,       // liste d’un utilisateur
+  getSalles,              // pour l'API publique
+  listReservations,       // liste d'un utilisateur
   createReservation,
-  cancelReservation
+  cancelReservation,
+  getHistoriqueReservations
 } from "./model/utilisation_salle.js";
 
 import { isEmailValid, isPasswordValid } from "./validation.js";
@@ -69,7 +70,7 @@ router.post("/connexion", (req, res, next) => {
   passport.authenticate("local", async (err, user, info) => {
     if (err) return next(err);
     if (!user) return res.status(401).json(info);
-    // Utilisateur “simple”
+    // Utilisateur "simple"
     await updateLastLogin(user.id);
     req.logIn(user, loginErr => {
       if (loginErr) return next(loginErr);
@@ -262,7 +263,7 @@ router.post("/admin/inscription/verify", async (req, res) => {
     return res.status(401).json({ error: "Code invalide." });
   }
 
-  // tout est bon : suppression du code et création de l’admin réel
+  // tout est bon : suppression du code et création de l'admin réel
   await deleteCode(entry.id);
   const infos = req.session.pendingAdminInfos;
   delete req.session.pendingInscriptionEmail;
@@ -321,7 +322,7 @@ router.post("/salles",requireAuth, async (req, res, next) => {
 });
 
 // GET /salles/:id/edit
-// Formulaire d’édition d’une salle
+// Formulaire d'édition d'une salle
 router.get("/salles/:id/edit",requireAuth, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -364,7 +365,7 @@ router.delete("/salles/:id", async (req, res, next) => {
 // ── Gestion des réservations utilisateur ────────────────────────────
 
 // GET /reservations
-// Affiche les réservations de l’utilisateur connecté
+// Affiche les réservations de l'utilisateur connecté
 router.get("/reservations", async (req, res, next) => {
   console.log("Session utilisateur:", req.session.user);
   if (!req.session.user) {
@@ -377,7 +378,7 @@ router.get("/reservations", async (req, res, next) => {
       : now.getMonth();
     const year = Number(req.query.year) || now.getFullYear();
 
-    // 3) Charger les réservations de l’utilisateur
+    // 3) Charger les réservations de l'utilisateur
     const allResa = await listReservations(req.session.user.id);
 
     // 4) Construire le calendrier
@@ -401,7 +402,7 @@ router.get("/reservations", async (req, res, next) => {
 });
 
 // GET /reservations/new
-// Formulaire de création d’une réservation
+// Formulaire de création d'une réservation
 router.get("/reservations/new", async (req, res, next) => {
   console.log("Session utilisateur:", req.session.user);
   if (!req.session.user) {
@@ -460,6 +461,34 @@ router.delete("/reservations/:id", async (req, res, next) => {
       req.session.user.id
     );
     res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /historique
+// Affiche l'historique des réservations de l'utilisateur
+router.get("/historique", async (req, res, next) => {
+  if (!req.session.user) {
+    return res.redirect("/user/login");
+  }
+
+  try {
+    const historique = await getHistoriqueReservations(req.session.user.id);
+    
+    // Formatter les dates pour l'affichage
+    const reservationsFormattees = historique.map(resa => ({
+      ...resa,
+      dateDebut: new Date(resa.dateDebut).toLocaleString('fr-FR'),
+      dateFin: new Date(resa.dateFin).toLocaleString('fr-FR')
+    }));
+
+    res.render("historique", {
+      titre: "Historique des réservations",
+      styles: ["/css/style.css", "/css/historique.css"],
+      reservations: reservationsFormattees,
+      user: req.session.user
+    });
   } catch (err) {
     next(err);
   }
