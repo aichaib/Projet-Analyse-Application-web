@@ -77,3 +77,30 @@ export async function getHistoriqueReservations(utilisateurId) {
     throw err;
   }
 }
+
+/**
+ * Récupère toutes les réservations actives et futures d'un utilisateur.
+ * @param {number} utilisateurId - L'ID de l'utilisateur.
+ * @returns {Promise<UtilisationSalle[]>}
+ */
+export async function getReservationsByUserId(utilisateurId) {
+  try {
+    return await prisma.utilisationSalle.findMany({
+      where: {
+        utilisateurId: utilisateurId,
+        dateFin: {
+          gte: new Date(),
+        },
+      },
+      include: {
+        salle: true,
+      },
+      orderBy: {
+        dateDebut: 'asc',
+      },
+    });
+  } catch (err) {
+    console.error("Erreur lors de la récupération des réservations de l'utilisateur:", err);
+    throw err;
+  }
+}
