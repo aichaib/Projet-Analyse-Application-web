@@ -1,37 +1,57 @@
-<section class="reservations-calendar">
-  <!-- En-tête avec navigation mois -->
-  <div class="calendar-header"
-       data-month="{{month}}"
-       data-year="{{year}}">
-    <button id="prevMonth" class="nav-month">&lt;</button>
-    <h2>{{monthYear}}</h2>
-    <button id="nextMonth" class="nav-month">&gt;</button>
-  </div>
+<div class="page-avec-sidebar">
+    <!-- Menu latéral -->
+    <aside class="sidebar">
+        <nav class="calendar-nav">
+            <button type="button" class="nav-item">
+                <i class="bi bi-pencil-square"></i> Modifier une réservation
+            </button>
+            <button type="button" class="nav-item">
+                <i class="bi bi-x-circle"></i> Annuler
+            </button>
+            <a href="/accueil/user" class="nav-item">
+                <i class="bi bi-arrow-left"></i> Retour
+            </a>
+        </nav>
+    </aside>
 
-  <!-- Jours de la semaine -->
-  <div class="calendar-weekdays">
-    {{#each weekdays}}
-      <div class="weekday">{{this}}</div>
-    {{/each}}
-  </div>
+    <!-- Contenu principal du calendrier -->
+    <div class="main-calendar-content">
+        <section class="reservations-calendar">
+            <!-- En-tête avec navigation mois -->
+            <div class="calendar-header"
+                 data-month="{{month}}"
+                 data-year="{{year}}">
+                <button id="prevMonth" class="nav-month">&lt;</button>
+                <h2>{{monthYear}}</h2>
+                <button id="nextMonth" class="nav-month">&gt;</button>
+            </div>
 
-  <!-- Grille des jours -->
-  <div class="calendar-days">
-    {{#each days}}
-      <div class="calendar-day
+            <!-- Jours de la semaine -->
+            <div class="calendar-weekdays">
+                {{#each weekdays}}
+                <div class="weekday">{{this}}</div>
+                {{/each}}
+            </div>
+
+            <!-- Grille des jours -->
+            <div class="calendar-days">
+                {{#each days}}
+                <div class="calendar-day
                   {{#unless inMonth}}other-month{{/unless}}
                   {{#if reservations.length}} reserved{{/if}}">
-        <div class="day-number">{{day}}</div>
+                    <div class="day-number">{{day}}</div>
 
-        {{#each reservations}}
-          <div class="event">
-            <div class="event-room">{{salle.nom}}</div>
-            <div class="event-time">
-              {{formatTime dateDebut}} – {{formatTime dateFin}}
+                    {{#each reservations}}
+                    <div class="event">
+                        <div class="event-room">{{salle.nom}}</div>
+                        <div class="event-time">
+                            {{formatTime dateDebut}} – {{formatTime dateFin}}
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                {{/each}}
             </div>
-          </div>
-        {{/each}}
-      </div>
-    {{/each}}
-  </div>
-</section>
+        </section>
+    </div>
+</div>

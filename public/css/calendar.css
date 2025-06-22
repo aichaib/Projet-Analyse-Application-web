@@ -1,80 +1,129 @@
-:root {
-  --primary:    #0a2e61;
-  --grey-bg:    #e9e9e9;
-  --text-dark:  #333;
-  --text-light: #fff;
+/* Mise en page principale */
+.page-avec-sidebar {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  align-items: center;
+  margin-top: 70px;
 }
 
+/* Menu latéral */
+.sidebar {
+  width: 240px;
+  background-color: #0a2e61;
+  padding: 1.5rem;
+  color: white;
+  flex-shrink: 0;
+  border-radius: 0.75rem;
+  height: fit-content;
+}
+
+/* Éléments de navigation du menu */
+.calendar-nav .nav-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  color: #fff;
+  background: transparent;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  text-decoration: none;
+  border: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.calendar-nav .nav-item:hover,
+.calendar-nav .nav-item.active,
+.calendar-nav .nav-item:focus {
+  background-color: rgba(255,255,255,0.1);
+}
+
+.calendar-nav .nav-item.active {
+  background-color: rgba(255,255,255,0.2);
+}
+
+.calendar-nav .nav-item i {
+  font-size: 1.2rem;
+  margin-right: 0.75rem;
+}
+
+/* Conteneur du calendrier */
+.main-calendar-content {
+  flex-grow: 1;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  min-width: 0;
+}
+
+/* Styles de la grille du calendrier */
 .reservations-calendar {
   max-width: 900px;
-  margin: 2rem auto;
-  margin-top: 80px;
+  width: 100%;
+  margin: 0 auto;
   font-family: sans-serif;
 }
-
-/* Header mois */
 .calendar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--primary);
-  color: var(--text-light);
+  background: #0a2e61;
+  color: white;
   padding: 0.5rem 1rem;
   border-radius: 8px 8px 0 0;
 }
 .nav-month {
   background: transparent;
   border: none;
-  color: var(--text-light);
+  color: white;
   font-size: 1.5rem;
   cursor: pointer;
 }
-
-/* Jours de la semaine */
 .calendar-weekdays {
   display: grid;
-  grid-template-columns: repeat(7,1fr);
-  background: var(--grey-bg);
+  grid-template-columns: repeat(7, 1fr);
+  background: #e9e9e9;
   text-align: center;
   padding: .5rem 0;
 }
 .weekday {
   font-weight: bold;
-  color: var(--text-dark);
+  color: #333;
 }
-
-/* Grille des jours */
 .calendar-days {
   display: grid;
-  grid-template-columns: repeat(7,1fr);
-  grid-auto-rows: auto;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(100px, auto);
 }
 .calendar-day {
   border: 1px solid #eee;
   padding: .5rem;
-  min-height: 100px;
   position: relative;
 }
+
+/* Styles des jours spécifiques */
 .other-month {
   background: #fafafa;
   color: #ccc;
 }
-
-/* Numéro du jour */
 .day-number {
   font-weight: bold;
   margin-bottom: .25rem;
 }
-
-/* Jour réservé */
 .calendar-day.reserved {
-  background: rgba(10,46,97,0.05);
+  background: rgba(10, 46, 97, 0.05);
 }
 
-/* Événements */
+/* Styles des événements */
 .event {
-  background: rgba(10,46,97,0.1);
-  border-left: 4px solid var(--primary);
+  background: rgba(10, 46, 97, 0.1);
+  border-left: 4px solid #0a2e61;
   margin: .25rem 0;
   padding: .25rem .5rem;
   border-radius: 4px;
@@ -86,15 +135,4 @@
 .event-time {
   font-size: .7rem;
   color: #555;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .calendar-weekdays,
-  .calendar-days {
-    grid-auto-rows: 80px;
-  }
-  .calendar-header h2 {
-    font-size: 1.2rem;
-  }
-}
+} 

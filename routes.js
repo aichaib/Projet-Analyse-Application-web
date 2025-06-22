@@ -24,7 +24,8 @@ import {
   listReservations,       // liste d'un utilisateur
   createReservation,
   cancelReservation,
-  getHistoriqueReservations
+  getHistoriqueReservations,
+  getReservationsByUserId
 } from "./model/utilisation_salle.js";
 
 import { isEmailValid, isPasswordValid } from "./validation.js";
@@ -401,7 +402,6 @@ router.get("/reservations", async (req, res, next) => {
   }
 });
 
-// GET /reservations/new
 // Formulaire de création d'une réservation
 router.get("/reservations/new", async (req, res, next) => {
   console.log("Session utilisateur:", req.session.user);
