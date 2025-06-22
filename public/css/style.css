@@ -6,6 +6,7 @@ body {
   min-height: 100vh;
   height: 100%;
   padding: 0;
+  background-color: #f5f5f5; /* Couleur de fond gris clair */
 }
 
 header {
@@ -111,7 +112,7 @@ nav.header-nav a:hover::after {
   display: block;
 }
 
-/* réduire l’espace au-dessus du texte */
+/* réduire l'espace au-dessus du texte */
 .feature p {
   margin: 0;
   min-height: 4rem; 
@@ -166,7 +167,7 @@ footer a {
   transition: text-decoration-color 0.2s;
 }
 
-/* Soulignement au hover avec la couleur de fond de l’entête */
+/* Soulignement au hover avec la couleur de fond de l'entête */
 footer a:hover {
   text-decoration: underline;
   text-decoration-color: #003366; /* remplacer par la couleur exacte de votre header */

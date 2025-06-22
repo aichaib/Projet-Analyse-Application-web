@@ -10,23 +10,26 @@
 /* ── Mise en page globale ── */
 .reservation-page {
   display: flex;
-  flex: wrap;
+  flex-wrap: wrap;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 2rem;
+  align-items: stretch;
+  gap: 2rem;
+  padding: 1rem;
   background: var(--light-bg);
-
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 1200px;
+  margin: 1rem auto;
+  border-radius: 0.75rem;
 }
 
 .main-content {
-  padding-top: 50px; /* ← ajuste à la hauteur réelle de ton header */
+  padding-top: 50px; 
 }
 
 /* ── Colonne gauche fixe ── */
 .reservation-container {
   position: relative;
-  flex:none;            /* largeur fixe */
+  flex:none;           
   background: #fff;
   width: 300px;
   padding: 5rem 1.5rem 1.5rem;
@@ -53,7 +56,7 @@
 
 /* ── Formulaire ── */
 .form-recherche {
-  margin-top: 2rem;           /* décale sous le titre */
+  margin-top: 2rem;          
 }
 .field-group {
   display: flex;
@@ -93,6 +96,24 @@
   opacity: .9;
 }
 
+.btn-reserver {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: .75rem 1.5rem;
+    background: #1e3a5f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    align-self: flex-end;
+    width: auto !important; 
+}
+
 .btn-res{
     max-width: 100px;
 }
@@ -104,31 +125,63 @@
   flex-direction: column;
   align-items: center;
 }
+
+.result-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.result-actions {
+  flex-shrink: 0;
+  text-align: center;
+  width: 100%;
+  max-width: 500px;
+}
+
 .titre-resultat {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
   color: var(--text-dark);
-}
-.grille-salles {
   width: 100%;
-  max-width: 600px;
+  max-width: 500px;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.grille-salles {
   background: #fff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .05);
+  max-width: 500px;
+  width: 100%;
+  align-self: center;
+  margin-top: 0;
+  margin-bottom: 1rem;
   padding: 1.5rem;
   border-radius: .75rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,.1);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  min-height: unset;
+  justify-content: center;
+  text-align: center;
+  min-height: 400px;
 }
+
+.btn-reserver:disabled {
+  background-color: #a9a9a9;
+  cursor: not-allowed;
+}
+
 .grille-salles #resultatsSalles {
   flex: none;
   width: 100%;
 }
+
 /* ── Responsive (mobile) ── */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .reservation-page {
     flex-direction: column;
     padding: 1rem;
