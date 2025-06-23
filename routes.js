@@ -553,7 +553,7 @@ router.get("/salles/new", requireAuth, async (req, res, next) => {
     const equipements = await import("./model/equipement.js").then(m => m.listEquipements());
     res.render("salles/newSalle", {
       titre: "Nouvelle salle",
-      styles: ["/css/style.css", "/css/form.css"],
+      styles: ["/css/style.css", "/css/styleCreationSalle.css"],
       equipements
     });
   } catch (err) {
