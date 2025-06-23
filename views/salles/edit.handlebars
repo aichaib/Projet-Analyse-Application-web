@@ -1,0 +1,28 @@
+<section class="formulaire-salle">
+  <h1 class="title">Modifier la salle</h1>
+
+  <form action="/salles/{{salle.id}}" method="POST" class="formulaire">
+    <input type="hidden" name="_method" value="PUT">
+
+    <div class="form-group">
+      <label for="nom">Nom :</label>
+      <input type="text" id="nom" name="nom" value="{{salle.nom}}" required>
+    </div>
+
+    <div class="form-group">
+      <label for="capacite">Capacité :</label>
+      <input type="number" id="capacite" name="capacite" value="{{salle.capacite}}" required>
+    </div>
+
+    <div class="form-group">
+      <label for="emplacement">Emplacement :</label>
+      <input type="text" id="emplacement" name="emplacement" value="{{salle.emplacement}}" required>
+    </div>
+
+    <button type="submit" class="btn-envoyer">Enregistrer</button>
+  </form>
+
+  <div class="retour">
+    <a href="/salles" class="btn-retour">← Retour à la liste</a>
+  </div>
+</section>

@@ -104,3 +104,20 @@ export async function getReservationsByUserId(utilisateurId) {
     throw err;
   }
 }
+
+export async function getAllReservations() {
+  try {
+    return await prisma.utilisationSalle.findMany({
+      include: {
+        salle: true,
+        utilisateur: true, // Inclure les détails de l'utilisateur
+      },
+      orderBy: {
+        dateDebut: 'asc',
+      },
+    });
+  } catch (err) {
+    console.error("Erreur lors de la récupération de toutes les réservations:", err);
+    throw err;
+  }
+}

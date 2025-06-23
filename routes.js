@@ -297,10 +297,15 @@ router.get("/accueil/admin", requireAuth,(req, res) => {
 
 // GET /salles
 // Affiche la liste de toutes les salles
-router.get("/salles",requireAuth, async (req, res, next) => {
+router.get("/salles", requireAuth, async (req, res, next) => {
   try {
     const salles = await listSalles();
-    res.render("salles/list", { salles });
+    res.render("salles/list", {
+      titres: "Liste des salles",
+      styles: ["/css/style.css", "/css/sallesList.css"],
+      scripts: ["/js/salles.js"],
+      salles
+    });
   } catch (err) {
     next(err);
   }
@@ -541,4 +546,59 @@ router.get("/deconnexion", (req, res) => {
   });
 });
 
+
+// ── Ajout du formulaire 'Ajouter une salle' ────────────────────────
+router.get("/salles/new", requireAuth, async (req, res, next) => {
+  try {
+    const equipements = await import("./model/equipement.js").then(m => m.listEquipements());
+    res.render("salles/newSalle", {
+      titre: "Nouvelle salle",
+      styles: ["/css/style.css", "/css/form.css"],
+      equipements
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ── Historique complet des réservations (admin) ─────────────────────
+import { getAllReservations } from "./model/utilisation_salle.js";  // Assurez-vous que cette fonction existe
+
+router.get("/admin/historique", requireAuth, async (req, res, next) => {
+  try {
+    const all = await getAllReservations();
+    const formatted = all.map(resa => ({
+      ...resa,
+      dateDebut: new Date(resa.dateDebut).toLocaleString('fr-FR'),
+      dateFin: new Date(resa.dateFin).toLocaleString('fr-FR')
+    }));
+    res.render("historique", {
+      titre: "Historique complet des réservations",
+      styles: ["/css/style.css", "/css/historique.css"],
+      reservations: formatted,
+      user: req.session.user
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ── Gestion des utilisateurs (admin) ───────────────────────────────
+import { listUsers } from "./model/user.js";  // Créez cette fonction si elle n'existe pas
+
+router.get("/admin/utilisateurs", requireAuth, async (req, res, next) => {
+  try {
+    const users = await listUsers();
+    res.render("utilisateurs/listUtilisateurs", {
+      titre: "Gestion des utilisateurs",
+      styles: ["/css/style.css", "/css/styleListUtilisateurs.css"],
+      users
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
+
+

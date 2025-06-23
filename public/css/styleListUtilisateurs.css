@@ -1,0 +1,98 @@
+/* Container */
+.users-list-container {
+  padding: 2rem;
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* Title */
+.users-list-container .title {
+  font-size: 2rem;
+  color: #0a2e61;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Table container */
+.table-container {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+/* Table */
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Table header */
+.users-table thead tr {
+  background-color: #0a2e61;
+  color: white;
+  text-align: left;
+}
+
+.users-table thead th {
+  padding: 0.8rem 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Table body rows */
+.users-table tbody tr {
+  border-bottom: 1px solid #ddd;
+}
+
+.users-table tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+/* Table cells */
+.users-table tbody td {
+  padding: 0.7rem 1rem;
+  vertical-align: middle;
+  white-space: nowrap;
+  color: #0a2e61;
+}
+
+/* Buttons */
+.btn-modifier,
+.btn-supprimer {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-modifier {
+  background-color: #0a2e61;
+  color: white;
+  margin-right: 0.5rem;
+}
+
+.btn-modifier:hover {
+  background-color: #144067;
+}
+
+.btn-supprimer {
+  background-color: #d9534f; /* bootstrap red */
+  color: white;
+}
+
+.btn-supprimer:hover {
+  background-color: #c9302c;
+}
+
+/* Form supprimer inline */
+.form-supprimer {
+  display: inline;
+}
+

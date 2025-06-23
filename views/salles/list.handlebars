@@ -1,0 +1,36 @@
+<section class="salles-list-container">
+  <h1 class="title">Liste des salles</h1>
+
+  <div class="actions">
+    <a href="/salles/new" class="btn-ajouter">+ Ajouter une nouvelle salle</a>
+  </div>
+
+  <div class="table-container">
+    <table class="salles-table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Capacité</th>
+          <th>Emplacement</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each salles}}
+          <tr>
+            <td>{{this.nom}}</td>
+            <td>{{this.capacite}}</td>
+            <td>{{this.emplacement}}</td>
+            <td>
+              <a href="/salles/{{this.id}}/edit" class="btn-modifier">Modifier</a>
+              <form action="/salles/{{this.id}}" method="POST" class="form-supprimer" onsubmit="return confirm('Confirmer la suppression ?');">
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="btn-supprimer">Supprimer</button>
+              </form>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -26,3 +26,7 @@ export async function updateLastLogin(utilisateurId) {
     data: { lastLogin: new Date() }
   });
 }
+
+export async function listUsers() {
+  return prisma.utilisateur.findMany();
+}
