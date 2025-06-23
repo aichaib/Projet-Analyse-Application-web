@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 // lire tous les équipements
 export async function listEquipements() {
     return await prisma.equipement.findMany({
-    include: { salle: true },
+    include: { salles: true },
   });
 }
 

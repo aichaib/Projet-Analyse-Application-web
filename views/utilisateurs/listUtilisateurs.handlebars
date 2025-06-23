@@ -1,0 +1,38 @@
+<section class="users-list-container">
+  <h1 class="title">Gestion des utilisateurs</h1>
+
+  <div class="table-container">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Prénom</th>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Inscrit le</th>
+          <th>Dernière connexion</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each users}}
+          <tr>
+            <td>{{this.prenom}}</td>
+            <td>{{this.nom}}</td>
+            <td>{{this.email}}</td>
+            <td>{{#if this.isAdmin}}Admin{{else}}Utilisateur{{/if}}</td>
+            <td>{{this.createdAt}}</td>
+            <td>{{#if this.lastLogin}}{{this.lastLogin}}{{else}}Jamais{{/if}}</td>
+            <td>
+              <a href="/admin/utilisateurs/{{this.id}}/edit" class="btn-modifier">Modifier</a>
+              <form action="/admin/utilisateurs/{{this.id}}" method="POST" class="form-supprimer" onsubmit="return confirm('Confirmer la suppression ?');">
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="btn-supprimer">Supprimer</button>
+              </form>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</section>

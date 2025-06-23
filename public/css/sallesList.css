@@ -1,0 +1,102 @@
+/* --- Liste des salles --- */
+
+.salles-list-container {
+  max-width: 1000px;
+  margin: 80px auto;
+  padding: 40px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.salles-list-container .title {
+  color: #0a2e61;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.btn-ajouter {
+  background-color: #0a2e61;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.btn-ajouter:hover {
+  background-color: #144067;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.salles-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.salles-table thead {
+  background-color: #0a2e61;
+  color: white;
+}
+
+
+
+.salles-table th,
+.salles-table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.salles-table tr:hover {
+  background-color: #f0f4f8;
+}
+
+.btn-modifier {
+  background-color: transparent;
+  color: #0a2e61;
+  border: 1px solid #0a2e61;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  text-decoration: none;
+  margin-right: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-modifier:hover {
+  background-color: #0a2e61;
+  color: white;
+}
+
+.form-supprimer {
+  display: inline;
+}
+
+.btn-supprimer {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-supprimer:hover {
+  background-color: #c0392b;
+}
