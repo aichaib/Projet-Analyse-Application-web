@@ -10,6 +10,7 @@ import {
   deleteCode, getLatestCodeByEmail
 } from "./model/verificationCode.js";
 
+
 import { buildCalendar, monthNames } from "./model/calendareController.js";
 import {
   listSalles,
@@ -596,6 +597,98 @@ router.get("/admin/utilisateurs", requireAuth, async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+});
+
+
+// ── Gestion des équipements ────────────────────────────────────────
+import {
+  listEquipements, createEquipement,
+  updateEquipement, deleteEquipement
+} from "./model/equipement.js";
+
+// Get liste de tous les equipements
+router.get("/list/equipement", async (req, res) => {
+  try {
+    const equipements = await listEquipements();
+    res.render("listEquipement", {
+      titres: "Liste des Equipements",
+      styles: ["/css/style.css", "/css/equipement.css"],     
+      equipements,
+    });
+  } catch (error) {
+    console.error("Error fetching equipements:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+
+// Post création d'un nouvel equipement
+router.post("/new/equipement", async (req, res) => {
+  const { nom } = req.body;
+  try {
+    await createEquipement({ nom });
+    res.redirect("/list/equipement");
+  } catch (error) {
+    if (error.message.includes("existe déjà")) {
+      return res.status(409).json({ error: error.message });
+    }
+    console.error("Erreur création équipement:", error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+  return null;
+});
+
+router.get("/new/equipement", (req, res) => {
+  res.render("newEquipement", {
+    titre: "Ajouter un équipement",
+    styles: ["/css/style.css", "/css/equipement.css"],
+    scripts: ["/js/equipement.js"], 
+  });
+});
+
+
+/*
+// Get formulaire d'édition d'un equipement
+router.get("/:id/edit", async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    const equipement = await prisma.equipement.findUnique({
+      where: { id },
+    });
+    if (!equipement) {
+      return res.status(404).send("Equipement not found");
+    }
+    res.render("equipements/edit", { equipement });
+  } catch (error) {
+    console.error("Error fetching equipement for edit:", error);
+    res.status(500).send("Internal Server Error");
+  }
+  return null;
+});
+*/
+// Put mise à jour d'un equipement
+router.put("/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const { nom } = req.body;
+  try {
+    await updateEquipement(id, { nom });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error updating equipement:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Delete suppression d'un equipement
+router.delete("/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    await deleteEquipement(id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting equipement:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
