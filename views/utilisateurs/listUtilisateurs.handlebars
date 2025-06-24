@@ -24,7 +24,12 @@
             <td>{{this.createdAt}}</td>
             <td>{{#if this.lastLogin}}{{this.lastLogin}}{{else}}Jamais{{/if}}</td>
             <td>
-              <a href="/admin/utilisateurs/{{this.id}}/edit" class="btn-modifier">Modifier</a>
+            <form action="/admin/utilisateurs/{{this.id}}/edit" method="GET" class="form-modifier">
+              <input type="hidden" name="_method" value="GET">
+              <button type="submit" class="btn-modifier">Modifier</button>
+            </form>
+
+              
               <form action="/admin/utilisateurs/{{this.id}}" method="POST" class="form-supprimer" onsubmit="return confirm('Confirmer la suppression ?');">
                 <input type="hidden" name="_method" value="DELETE">
                 <button type="submit" class="btn-supprimer">Supprimer</button>

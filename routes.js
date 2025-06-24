@@ -11,6 +11,8 @@ import {
 } from "./model/verificationCode.js";
 
 import { buildCalendar, monthNames } from "./model/calendareController.js";
+import { logAdminAction } from "./model/historiqueAdmin.js";
+
 import {
   listSalles,
   createSalle,
@@ -27,6 +29,7 @@ import {
   getHistoriqueReservations,
   getReservationsByUserId
 } from "./model/utilisation_salle.js";
+
 
 import { isEmailValid, isPasswordValid } from "./validation.js";
 import { sendVerificationCode, sendInscriptionVerificationCode } from "./model/email.js";
@@ -321,6 +324,9 @@ router.post("/salles",requireAuth, async (req, res, next) => {
       capacite: parseInt(capacite, 10),
       emplacement
     });
+
+    // Log l'action d'administration
+    await logAdminAction(req.session.user.id, "Création d'une salle", "Salle créée : " + nom);
     res.redirect("/salles");
   } catch (err) {
     next(err);
@@ -329,14 +335,23 @@ router.post("/salles",requireAuth, async (req, res, next) => {
 
 // GET /salles/:id/edit
 // Formulaire d'édition d'une salle
-router.get("/salles/:id/edit",requireAuth, async (req, res, next) => {
+router.get("/salles/:id/edit", requireAuth, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     const salle = await findSalleById(id);
-    res.render("salles/edit", { salle });
+    if (!salle) {
+      return res.status(404).send("Salle non trouvée");
+    }
+    res.render("salles/edit", {
+      titre: "Modifier la salle",
+      styles: ["/css/style.css", "/css/styleEdit.css"],
+      scripts: ["/js/salles.js"],
+      salle
+    });
   } catch (err) {
     next(err);
   }
+  await logAdminAction(req.session.user.id, "Accès à l'édition d'une salle", `Salle ID: ${id}`);
 });
 
 // PUT /salles/:id
@@ -354,11 +369,13 @@ router.put("/salles/:id", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+
+  await logAdminAction(req.session.user.id, "Mise à jour d'une salle", `Salle ID: ${id}, Nom: ${nom}`);
 });
 
 // DELETE /salles/:id
 // Supprime une salle
-router.delete("/salles/:id", async (req, res, next) => {
+router.delete("/salles/:id", requireAuth, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     await deleteSalle(id);
@@ -366,6 +383,8 @@ router.delete("/salles/:id", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+
+  await logAdminAction(req.session.user.id, "Suppression d'une salle", `Salle ID: ${id}`);
 });
 
 // ── Gestion des réservations utilisateur ────────────────────────────
@@ -598,6 +617,59 @@ router.get("/admin/utilisateurs", requireAuth, async (req, res, next) => {
     next(err);
   }
 });
+
+import { getUserById  } from "./model/gestionUtilisateur.js"; // Assurez-vous que ces fonctions existent
+
+router.get("/admin/utilisateurs/:id/edit", requireAuth, async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const user = await getUserById(id); // Assuming you're using ID now, not email
+    if (!user) {
+      return res.status(404).send("Utilisateur non trouvé");
+    }
+    res.render("utilisateurs/editUtilisateurs", {
+      titre: "Modifier l'utilisateur",
+      styles: ["/css/style.css", "/css/styleEdit.css"],
+      scripts: ["/js/utilisateurs.js"],
+      user
+    });
+  } catch (err) {
+    next(err);
+  }
+  await logAdminAction(req.session.user.id, "Accès à l'édition d'un utilisateur", `Utilisateur ID: ${id}`);
+});
+
+import { getHistoriqueByAdminId } from './model/historiqueAdmin.js';
+
+router.get("/admin/historique", requireAuth, async (req, res, next) => {
+  try {
+    const historique = await getHistoriqueByAdminId(req.session.user.id);
+    res.render("admin/historiqueAdmin", {
+      titre: "Historique de mes actions",
+      styles: ["/css/style.css"],
+      historique,
+      user: req.session.user
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+router.get("/admin/historiqueAdmin", requireAuth, async (req, res, next) => {
+  try {
+    const historique = await getHistoriqueByAdminId(req.session.user.id);
+    res.render("historiqueAdmin", {
+      titre: "Historique de mes actions",
+      styles: ["/css/style.css", "/css/historiqueAdmin.css"],
+      historique,
+      user: req.session.user
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 export default router;
 
