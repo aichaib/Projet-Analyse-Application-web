@@ -670,6 +670,49 @@ router.get("/admin/historiqueAdmin", requireAuth, async (req, res, next) => {
   }
 });
 
+router.get("/parametres", (req, res) => {
+  res.render("userSettings", {
+    user: req.user,
+    titre: "Paramètres",
+    styles: ["/css/style.css", "/css/form.css"],
+    scripts: ["/js/userSettings.js"]
+  });
+});
+
+
+// POST /user/settings
+router.post('/user/settings', async (req, res) => {
+  const { prenom, nom, email } = req.body;
+  try {
+    await updateUser(req.user.id, { prenom, nom, email });
+    res.json({ success: true, message: 'Mise à jour réussie' });
+  } catch (err) {
+    res.status(400).json({ success: false, message: 'Erreur lors de la mise à jour' });
+  }
+});
+
+// GET /contact
+router.get('/contact', (req, res) => {
+  res.render('contact', {
+    titre: 'Contactez-nous',
+    styles: ['/css/forms.css', '/css/contact.css', '/css/styles.css'],
+    scripts: ['/js/contact.js']
+  });
+});
+
+// POST /contact
+router.post('/contact', async (req, res) => {
+  const { sujet, message } = req.body;
+  try {
+    await sendContactMessage(req.user?.email || req.body.email, sujet, message);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: 'Erreur lors de l’envoi du message' });
+  }
+});
+
+
 
 export default router;
 

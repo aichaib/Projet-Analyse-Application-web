@@ -92,3 +92,124 @@
 .form-section .secondary-link:hover {
   color: #003366;
 }
+
+.form-container {
+  max-width: 550px;
+  margin: 3rem auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.titre-formulaire {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #0c2c57;
+}
+
+.formulaire .groupe-formulaire {
+  margin-bottom: 1.2rem;
+}
+
+.formulaire label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.formulaire input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #f3f8ff;
+  font-size: 1rem;
+}
+
+.btn-formulaire {
+  background-color: #002f6c;
+  color: white;
+  border: none;
+  padding: 0.9rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  width: 100%;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.btn-formulaire:hover {
+  background-color: #004494;
+}
+
+.info-formulaire {
+  margin-top: 1rem;
+  text-align: center;
+  color: green;
+  font-weight: 500;
+}
+
+
+.form-container {
+  max-width: 550px;
+  margin: 3rem auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.titre-formulaire {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #0c2c57;
+}
+
+.formulaire .groupe-formulaire {
+  margin-bottom: 1.2rem;
+}
+
+.formulaire label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.formulaire input,
+.formulaire textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #f3f8ff;
+  font-size: 1rem;
+}
+
+.btn-formulaire {
+  background-color: #002f6c;
+  color: white;
+  border: none;
+  padding: 0.9rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  width: 100%;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.btn-formulaire:hover {
+  background-color: #004494;
+}
+
+.info-formulaire {
+  margin-top: 1rem;
+  text-align: center;
+  color: green;
+  font-weight: 500;
+}
+
