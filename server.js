@@ -37,6 +37,12 @@ app.use(compression());
 app.use(cors());
 app.use(json());
 
+// Middleware pour parser les données des formulairesapp.use(express.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+
 //Middeleware pour gerer les sessions
 app.use(
     session({

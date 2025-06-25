@@ -1,27 +1,30 @@
-<session>
+<div class="list-container">
     <h1>Liste des équipements</h1>
     <table class="table table-striped">
         <thead>
         <tr>
         <th>ID</th>
-            <th>Nom</th>
+        <th>Nom</th>
         </tr>
         </thead>
         <tbody>
         {{#each equipements}}
             <tr>
-            <td>{{this.id}}</td>
-            <td>{{this.nom}}</td>
-            <td>
-                <a href="/equipement/modifier/{{this.id}}" class="btn btn-primary">Modifier</a>
-            </td>   
-            <td>
-                <a href="/equipement/supprimer/{{this.id}}" class="btn btn-danger">Supprimer</a>
-            </td>
+                <td>{{this.id}}</td>
+                <td>{{this.nom}}</td>
+                <td>
+                    <a href="/equipement/modifier/{{this.id}}" class="btn btn-primary">Modifier</a>
+                </td>   
+                <td>
+                    <form action="/equipement/{{this.id}}/delete" method="POST">
+                        <button class="btn btn-danger" onclick="deleteEquipement({{this.id}}, '{{this.nom}}')">Supprimer</button>
+                    </form>
+                </td>
             </tr>
         {{/each}}
         </tbody>
     </table>
     
     <a href="/new/equipement" class="btn btn-success">Ajouter un nouvel équipement</a>
-</session>
+    <a href="/accueil/admin" class="btn btn-secondary bi bi-arrow-left me-2">Retour à l'accueil</a>
+</div>

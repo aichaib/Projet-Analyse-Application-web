@@ -16,3 +16,23 @@ h1{
     border: 1px solid #e0e0e0;
     text-align: center;
 }
+
+.list-container {
+    max-width: 1000px;
+    margin-top: 20px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background-color: #d0cece;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid #e0e0e0;
+}
+
+#nom {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 15px;
+    font-size: 25px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
