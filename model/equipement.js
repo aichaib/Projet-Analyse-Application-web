@@ -24,6 +24,7 @@ export async function createEquipement(data) {
 
 // mettre à jour un équipement existant
 export async function updateEquipement(id, { nom }) {
+  console.log("→ Appel updateEquipement avec :", id, nom); // ← AJOUT
   return await prisma.equipement.update({
     where: { id },
     data: {

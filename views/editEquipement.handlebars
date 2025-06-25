@@ -1,0 +1,11 @@
+<div class="container">
+    <h1>Modifier un équipement</h1>
+    <form action="/equipement/modifier/{{equipement.id}}" method="POST" id="editEquipementForm">
+
+        <input type="text" name="nom" id="nom" value="{{equipement.nom}}" required>
+        <br>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+    
+    <a href="/list/equipement" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
