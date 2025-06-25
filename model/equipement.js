@@ -6,17 +6,19 @@ const prisma = new PrismaClient();
 
 // lire tous les équipements
 export async function listEquipements() {
-    return await prisma.equipement.findMany({
-    include: { salles: true },
-  });
+  return prisma.equipement.findMany();
 }
 
 // creer un nouvel équipement
-export async function createEquipement({ nom}) {
-  return await prisma.equipement.create({
-    data: {
-      nom
-    },
+export async function createEquipement(data) {
+  const exists = await prisma.equipement.findUnique({
+    where: { nom: data.nom },
+  });
+  if (exists) {
+    throw new Error(`Equipement avec le nom '${data.nom}' existe déjà.`);
+  }
+  return prisma.equipement.create({
+    data,
   });
 }
 

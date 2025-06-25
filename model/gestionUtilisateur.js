@@ -37,9 +37,3 @@ export async function findUserByEmail(email) {
     where: { email }
   });
 }
-
-export async function getUserById(id) {
-  return prisma.utilisateur.findUnique({
-    where: { id }
-  });
-}
