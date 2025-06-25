@@ -99,3 +99,17 @@
 .form-modifier {
   display: inline;
 }
+
+.retour {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #0a2e61;
+  color: white;
+  border-radius: 5px;
+}
+
+.retour a {
+  color: white;
+  text-decoration: underline
+}

@@ -793,6 +793,21 @@ router.get("/admin/utilisateurs/:id/edit", requireAuth, async (req, res, next) =
   }
 });
 
+
+router.delete("/admin/utilisateurs/:id/delete", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await deleteUser(parseInt(id));
+    res.status(204).send();
+  } catch (err) {
+    console.error("Erreur suppression utilisateur :", err);
+    res.status(500).json({ error: "Échec de la suppression" });
+  }
+});
+
+
+
+
 router.get("/admin/historique", requireAuth, async (req, res, next) => {
   try {
     const historique = await getHistoriqueByAdminId(req.session.user.id);
