@@ -342,6 +342,9 @@ router.get("/salles/:id/edit", requireAuth, async (req, res, next) => {
     if (!salle) {
       return res.status(404).send("Salle non trouvée");
     }
+
+    await logAdminAction(req.session.user.id, "Accès à l'édition d'une salle", `Salle ID: ${id}`);
+
     res.render("salles/edit", {
       titre: "Modifier la salle",
       styles: ["/css/style.css", "/css/styleEdit.css"],
@@ -351,8 +354,8 @@ router.get("/salles/:id/edit", requireAuth, async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-  await logAdminAction(req.session.user.id, "Accès à l'édition d'une salle", `Salle ID: ${id}`);
 });
+
 
 // PUT /salles/:id
 // Met à jour une salle
@@ -365,12 +368,11 @@ router.put("/salles/:id", async (req, res, next) => {
       capacite: parseInt(capacite, 10),
       emplacement
     });
+      await logAdminAction(req.session.user.id, "Mise à jour d'une salle", `Salle ID: ${id}, Nom: ${nom}`);
     res.json({ success: true });
   } catch (err) {
     next(err);
   }
-
-  await logAdminAction(req.session.user.id, "Mise à jour d'une salle", `Salle ID: ${id}, Nom: ${nom}`);
 });
 
 // DELETE /salles/:id
@@ -379,12 +381,11 @@ router.delete("/salles/:id", requireAuth, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     await deleteSalle(id);
+      await logAdminAction(req.session.user.id, "Suppression d'une salle", `Salle ID: ${id}`);
     res.json({ success: true });
   } catch (err) {
     next(err);
   }
-
-  await logAdminAction(req.session.user.id, "Suppression d'une salle", `Salle ID: ${id}`);
 });
 
 // ── Gestion des réservations utilisateur ────────────────────────────
@@ -627,6 +628,8 @@ router.get("/admin/utilisateurs/:id/edit", requireAuth, async (req, res, next) =
     if (!user) {
       return res.status(404).send("Utilisateur non trouvé");
     }
+      await logAdminAction(req.session.user.id, "Accès à l'édition d'un utilisateur", `Utilisateur ID: ${id}`);
+      
     res.render("utilisateurs/editUtilisateurs", {
       titre: "Modifier l'utilisateur",
       styles: ["/css/style.css", "/css/styleEdit.css"],
@@ -636,7 +639,6 @@ router.get("/admin/utilisateurs/:id/edit", requireAuth, async (req, res, next) =
   } catch (err) {
     next(err);
   }
-  await logAdminAction(req.session.user.id, "Accès à l'édition d'un utilisateur", `Utilisateur ID: ${id}`);
 });
 
 import { getHistoriqueByAdminId } from './model/historiqueAdmin.js';
