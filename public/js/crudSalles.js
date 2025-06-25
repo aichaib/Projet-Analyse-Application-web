@@ -1,27 +1,31 @@
-async function updateSalle(id, nom, capacite, emplacement) {
+document.getElementById("formSalle")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  document.querySelector(".btn-envoyer").disabled = true;
+
+  const nom = document.getElementById("nom").value.trim();
+  const capacite = parseInt(document.getElementById("capacite").value);
+  const emplacement = document.getElementById("emplacement").value.trim();
+  const equipementId = parseInt(document.getElementById("equipement").value);
+
   try {
-    const response = await fetch(`/salles/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        nom,
-        capacite,
-        emplacement
-      })
+    const response = await fetch("/salles", {
+      method: "POST",
+      body: JSON.stringify({ nom, capacite, emplacement, equipementId }),
+      headers: { "Content-Type": "application/json" }
     });
 
-    const result = await response.json();
-    if (result.success) {
-      console.log("Salle mise à jour avec succès !");
+    if (response.redirected) {
+      window.location.href = response.url;
     } else {
-      console.error("Échec de la mise à jour.");
+      const data = await response.json();
+      alert(data.error || "Création échouée.");
     }
   } catch (error) {
-    console.error("Erreur lors de la requête PUT :", error);
+    console.error("Erreur lors de la création :", error);
+    alert("Erreur serveur.");
   }
-}
+});
+
 
 async function supprimerSalle(id) {
   try {
@@ -32,7 +36,7 @@ async function supprimerSalle(id) {
     const result = await response.json();
     if (result.success) {
       console.log("Salle supprimée avec succès !");
-      
+
     } else {
       console.error("Échec de la suppression de la salle.");
     }

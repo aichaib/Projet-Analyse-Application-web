@@ -10,12 +10,55 @@ const prisma = new PrismaClient();
  * @returns la liste des réservations
  */
 export const listReservations = async (utilisateurId) => {
-    const reservations = await prisma.utilisationSalle.findMany({
-        where: { utilisateurId },
-        include: { salle: true }
-    });
-    return reservations;
+  const reservations = await prisma.utilisationSalle.findMany({
+    where: { utilisateurId },
+    include: { salle: true }
+  });
+  return reservations;
 };
+
+export async function getCapacitesDisponibles() {
+  const capacites = await prisma.salle.findMany({
+    select: { capacite: true },
+    distinct: ['capacite'],
+    orderBy: { capacite: 'asc' }
+  });
+  return capacites.map(c => c.capacite);
+}
+
+
+export async function getSallesDispoParCritere({ capacite, equipement, dateHeure }) {
+  const salles = await prisma.salle.findMany({
+    where: {
+      capacite: capacite ? { gte: capacite } : undefined,
+      equipements: equipement ? {
+        some: {
+          equipement: {
+            nom: {
+              contains: equipement
+            }
+          }
+        }
+      } : undefined,
+      reservations: dateHeure ? {
+        none: {
+          dateDebut: { lte: new Date(dateHeure) },
+          dateFin: { gte: new Date(dateHeure) }
+        }
+      } : undefined
+    },
+    include: {
+      equipements: {
+        include: {
+          equipement: true
+        }
+      }
+    }
+  });
+
+  return salles;
+}
+
 
 /**
  * Pour créer une réservation
@@ -23,10 +66,10 @@ export const listReservations = async (utilisateurId) => {
  * @returns la réservation créée
  */
 export const createReservation = async ({ utilisateurId, salleId, dateDebut, dateFin }) => {
-    const reservation = await prisma.utilisationSalle.create({
-        data: { utilisateurId, salleId, dateDebut, dateFin }
-    });
-    return reservation;
+  const reservation = await prisma.utilisationSalle.create({
+    data: { utilisateurId, salleId, dateDebut, dateFin }
+  });
+  return reservation;
 };
 
 /**
@@ -36,10 +79,10 @@ export const createReservation = async ({ utilisateurId, salleId, dateDebut, dat
  * @returns la réservation annulée
  */
 export const cancelReservation = async (id, utilisateurId) => {
-    const reservation = await prisma.utilisationSalle.deleteMany({
-        where: { id, utilisateurId }
-    });
-    return reservation;
+  const reservation = await prisma.utilisationSalle.deleteMany({
+    where: { id, utilisateurId }
+  });
+  return reservation;
 };
 
 /**
@@ -47,8 +90,8 @@ export const cancelReservation = async (id, utilisateurId) => {
  * @returns la liste des salles
  */
 export const getSalles = async () => {
-    const salles = await prisma.salle.findMany();
-    return salles;
+  const salles = await prisma.salle.findMany();
+  return salles;
 };
 
 /**

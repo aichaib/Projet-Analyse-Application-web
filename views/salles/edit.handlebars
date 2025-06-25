@@ -15,6 +15,17 @@
     </div>
 
     <div class="form-group">
+      <label for="equipement">Équipement :</label>
+      <select id="equipement" name="equipementId" required>
+        {{#each equipements}}
+        <option value="{{this.id}}" {{#if (eq this.id ../salle.equipements.[0].id)}}selected{{/if}}>
+          {{this.nom}}
+        </option>
+        {{/each}}
+      </select>
+    </div>
+
+    <div class="form-group">
       <label for="emplacement">Emplacement :</label>
       <input type="text" id="emplacement" name="emplacement" value="{{salle.emplacement}}" required>
     </div>

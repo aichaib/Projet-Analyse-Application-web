@@ -2,7 +2,20 @@
 import { Router } from "express";
 
 import passport from "passport";
-import { getUserByEmail, addUser, updateLastLogin } from "./model/user.js";
+import {
+  getUserById,
+  getUserByEmail,
+  addUser,
+  updateLastLogin,
+  updateUser,
+  deleteUser,
+  listUsers,
+  createUser,
+  findUserByEmail
+} from "./model/user.js";
+
+import { getHistoriqueByAdminId } from './model/historiqueAdmin.js';
+
 import {
   createCodeForUser,
   createCodeForEmail,
@@ -19,7 +32,8 @@ import {
   createSalle,
   updateSalle,
   deleteSalle,
-  findSalleById
+  findSalleById,
+  findSalleByNom
 } from "./model/gestion_salle.js";
 
 import {
@@ -28,7 +42,9 @@ import {
   createReservation,
   cancelReservation,
   getHistoriqueReservations,
-  getReservationsByUserId
+  getReservationsByUserId,
+  getSallesDispoParCritere,
+  getCapacitesDisponibles
 } from "./model/utilisation_salle.js";
 
 
@@ -194,7 +210,7 @@ router.post("/admin/login", (req, res, next) => {
     return res.status(400).json({ error: "Email ou mot de passe invalide." });
   }
   passport.authenticate("local", async (err, user, info) => {
-    if (!user || !user.isAdmin) { 
+    if (!user || !user.isAdmin) {
       return res.status(401).json({ error: "Accès refusé." });
     }
     console.log("Résultat passport :", { err, user, info })
@@ -218,6 +234,7 @@ router.post("/admin/login", (req, res, next) => {
 
 // POST /api/verify-code — validation du 2FA admin
 // POST /admin/verify-code — validation du 2FA admin
+// POST /admin/verify-code — validation du 2FA admin
 router.post("/admin/verify-code", async (req, res) => {
   const { code } = req.body;
   const email = req.session.pendingAdminEmail;
@@ -231,28 +248,31 @@ router.post("/admin/verify-code", async (req, res) => {
     return res.status(410).json({ error: "Code expiré." });
   }
 
-  // Très important : s'assurer que les deux codes sont des chaînes et bien nettoyés
-  const inputCode = code.toString().trim(); // <- assure que c'est bien une string
+  const inputCode = code.toString().trim();
   const valid = await bcrypt.compare(inputCode, entry.code);
 
   if (!valid) {
-    console.log("Code tapé :", inputCode);
-    console.log("Code attendu (hashé) :", entry.code);
     return res.status(401).json({ error: "Code invalide." });
   }
 
   const user = await getUserByEmail(email);
   await deleteCode(entry.id);
-  req.session.user = {
-    id: user.id,
-    email: user.email,
-    prenom: user.prenom,
-    nom: user.nom,
-    adminAuth: true,
-  };
+
+  // C’est ICI que tu mets cette ligne :
+  if (!req.session.user) {
+    req.session.user = {
+      id: user.id,
+      email: user.email,
+      prenom: user.prenom,
+      nom: user.nom,
+      adminAuth: true
+    };
+  }
+
   delete req.session.pendingAdminEmail;
   return res.json({ redirect: "/accueil/admin" });
 });
+
 
 router.post("/admin/inscription/verify", async (req, res) => {
   const { code } = req.body;
@@ -285,7 +305,7 @@ router.post("/admin/inscription/verify", async (req, res) => {
 });
 
 
-router.get("/accueil/admin", requireAuth,(req, res) => {
+router.get("/accueil/admin", requireAuth, (req, res) => {
   if (!req.session.user || !req.session.user.adminAuth) {
     return res.redirect("/admin/login");
   }
@@ -311,28 +331,44 @@ router.get("/salles", requireAuth, async (req, res, next) => {
       salles
     });
   } catch (err) {
+    console.error("Erreur création salle :", err);
     next(err);
   }
 });
 
 // POST /salles
 // Crée une nouvelle salle
-router.post("/salles",requireAuth, async (req, res, next) => {
+router.post("/salles", requireAuth, async (req, res, next) => {
   try {
-    const { nom, capacite, emplacement } = req.body;
+    const { nom, capacite, emplacement, equipementId } = req.body;
+    console.log("Données reçues :", req.body);
+
+    // Vérifie si une salle existe déjà
+    const existing = await findSalleByNom(nom);
+
+    if (existing) {
+      return res.status(409).json({ error: "Le nom de salle existe déjà." });
+    }
+
     await createSalle({
       nom,
-      capacite: parseInt(capacite, 10),
-      emplacement
+      capacite: parseInt(capacite),
+      emplacement,
+      equipementId: parseInt(equipementId)
     });
 
-    // Log l'action d'administration
-    await logAdminAction(req.session.user.id, "Création d'une salle", "Salle créée : " + nom);
-    res.redirect("/salles");
+    await logAdminAction(req.session.user.id, "Création salle", nom);
+
+    return res.redirect("/salles");
   } catch (err) {
-    next(err);
+    console.error("ERREUR serveur à POST /salles:", err);
+    if (err.code === "P2002") {
+      return res.status(409).json({ error: "Le nom de salle est déjà utilisé." });
+    }
+    res.status(500).json({ error: "Erreur serveur" });
   }
 });
+
 
 // GET /salles/:id/edit
 // Formulaire d'édition d'une salle
@@ -349,8 +385,9 @@ router.get("/salles/:id/edit", requireAuth, async (req, res, next) => {
     res.render("salles/edit", {
       titre: "Modifier la salle",
       styles: ["/css/style.css", "/css/styleEdit.css"],
-      scripts: ["/js/salles.js"],
-      salle
+      scripts: ["/js/crudSalles.js"],
+      salle,
+      equipements
     });
   } catch (err) {
     next(err);
@@ -360,21 +397,25 @@ router.get("/salles/:id/edit", requireAuth, async (req, res, next) => {
 
 // PUT /salles/:id
 // Met à jour une salle
-router.put("/salles/:id", async (req, res, next) => {
+router.put("/salles/:id", requireAuth, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
-    const { nom, capacite, emplacement } = req.body;
+    const { nom, capacite, emplacement, equipementId } = req.body;
+
     await updateSalle(id, {
       nom,
       capacite: parseInt(capacite, 10),
-      emplacement
+      emplacement,
+      equipementId
     });
-      await logAdminAction(req.session.user.id, "Mise à jour d'une salle", `Salle ID: ${id}, Nom: ${nom}`);
+
+    await logAdminAction(req.session.user.id, "Mise à jour d'une salle", `Salle ID: ${id}, Nom: ${nom}`);
     res.json({ success: true });
   } catch (err) {
     next(err);
   }
 });
+
 
 // DELETE /salles/:id
 // Supprime une salle
@@ -382,7 +423,7 @@ router.delete("/salles/:id", requireAuth, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     await deleteSalle(id);
-      await logAdminAction(req.session.user.id, "Suppression d'une salle", `Salle ID: ${id}`);
+    await logAdminAction(req.session.user.id, "Suppression d'une salle", `Salle ID: ${id}`);
     res.json({ success: true });
   } catch (err) {
     next(err);
@@ -407,7 +448,6 @@ router.get("/reservations", async (req, res, next) => {
 
     // 3) Charger les réservations de l'utilisateur
     const allResa = await listReservations(req.session.user.id);
-
     // 4) Construire le calendrier
     const days = buildCalendar(month, year, allResa);
     const weekdays = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
@@ -430,22 +470,21 @@ router.get("/reservations", async (req, res, next) => {
 
 // Formulaire de création d'une réservation
 router.get("/reservations/new", async (req, res, next) => {
-  console.log("Session utilisateur:", req.session.user);
   if (!req.session.user) {
     return res.redirect("/user/login");
   }
   try {
     const salles = await getSalles();
-    [
-      { day: 30, inMonth: false, reservations: [] },
-      { day: 31, inMonth: false, reservations: [] },
-      { day: 1, inMonth: true, reservations: [ /* réserves ce jour */] },
-    ]
+    const equipements = await listEquipements();
+    const capacites = await getCapacitesDisponibles();
+
     res.render("newReservationUser", {
       titre: "Nouvelle réservation",
       styles: ["/css/style.css", "/css/reservation.css"],
       scripts: ["/js/reservation.js"],
       salles,
+      equipements,
+      capacites,
       user: req.session.user
     });
   } catch (err) {
@@ -455,24 +494,21 @@ router.get("/reservations/new", async (req, res, next) => {
 
 // POST /reservations
 // Enregistre une nouvelle réservation
-router.post("/reservations", async (req, res, next) => {
-  if (!req.session.user) {
-    return res.status(401).send("Vous devez être connecté.");
-  }
+router.post("/api/salles/recherche", async (req, res) => {
   try {
-    const { salleId, dateDebut, dateFin } = req.body;
-    if (new Date(dateDebut) >= new Date(dateFin)) {
-      return res.status(400).send("Date début doit être antérieure à date fin.");
-    }
-    await createReservation({
-      utilisateurId: req.session.user.id,
-      salleId: parseInt(salleId, 10),
-      dateDebut,
-      dateFin
+    const { capacite, equipement, date, heure } = req.body;
+    const dateHeure = date && heure ? `${date}T${heure}` : null;
+
+    const salles = await getSallesDispoParCritere({
+      capacite: capacite ? parseInt(capacite, 10) : undefined,
+      equipement,
+      dateHeure
     });
-    res.redirect("/reservations");
+
+    res.json(salles);
   } catch (err) {
-    next(err);
+    console.error("Erreur recherche salle :", err);
+    res.status(500).json({ error: "Erreur serveur" });
   }
 });
 
@@ -501,7 +537,7 @@ router.get("/historique", async (req, res, next) => {
 
   try {
     const historique = await getHistoriqueReservations(req.session.user.id);
-    
+
     // Formatter les dates pour l'affichage
     const reservationsFormattees = historique.map(resa => ({
       ...resa,
@@ -575,6 +611,7 @@ router.get("/salles/new", requireAuth, async (req, res, next) => {
     res.render("salles/newSalle", {
       titre: "Nouvelle salle",
       styles: ["/css/style.css", "/css/styleCreationSalle.css"],
+      scripts: ["/js/crudSalles.js"],
       equipements
     });
   } catch (err) {
@@ -605,7 +642,6 @@ router.get("/admin/historique", requireAuth, async (req, res, next) => {
 });
 
 // ── Gestion des utilisateurs (admin) ───────────────────────────────
-import { listUsers } from "./model/user.js";  // Créez cette fonction si elle n'existe pas
 
 router.get("/admin/utilisateurs", requireAuth, async (req, res, next) => {
   try {
@@ -634,8 +670,10 @@ router.get("/list/equipement", async (req, res) => {
     const equipements = await listEquipements();
     res.render("listEquipement", {
       titres: "Liste des Equipements",
+      styles: ["/css/style.css", "/css/equipement.css"],
       styles: ["/css/style.css", "/css/equipement.css"],    
       scripts: ["/js/equipement"],
+
       equipements,
     });
   } catch (error) {
@@ -666,7 +704,7 @@ router.get("/new/equipement", (req, res) => {
   res.render("newEquipement", {
     titre: "Ajouter un équipement",
     styles: ["/css/style.css", "/css/equipement.css"],
-    scripts: ["/js/equipement.js"], 
+    scripts: ["/js/equipement.js"],
   });
 });
 
@@ -735,8 +773,6 @@ router.post('/equipement/:id/delete', async (req, res) => {
   }
 });
 
-//import { getUserById  } from "./model/gestionUtilisateur.js"; // Assurez-vous que ces fonctions existent
-
 router.get("/admin/utilisateurs/:id/edit", requireAuth, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -744,8 +780,8 @@ router.get("/admin/utilisateurs/:id/edit", requireAuth, async (req, res, next) =
     if (!user) {
       return res.status(404).send("Utilisateur non trouvé");
     }
-      await logAdminAction(req.session.user.id, "Accès à l'édition d'un utilisateur", `Utilisateur ID: ${id}`);
-      
+    await logAdminAction(req.session.user.id, "Accès à l'édition d'un utilisateur", `Utilisateur ID: ${id}`);
+
     res.render("utilisateurs/editUtilisateurs", {
       titre: "Modifier l'utilisateur",
       styles: ["/css/style.css", "/css/styleEdit.css"],
@@ -756,8 +792,6 @@ router.get("/admin/utilisateurs/:id/edit", requireAuth, async (req, res, next) =
     next(err);
   }
 });
-
-import { getHistoriqueByAdminId } from './model/historiqueAdmin.js';
 
 router.get("/admin/historique", requireAuth, async (req, res, next) => {
   try {
