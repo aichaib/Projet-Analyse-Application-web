@@ -71,3 +71,12 @@ export async function sendInscriptionVerificationCode(firstName, lastName, email
     throw err;
   }
 }
+
+export async function sendContactMessage(from, sujet, message) {
+  return transporter.sendMail({
+    from,
+    to: process.env.EMAIL_USER,
+    subject: `[Contact] ${sujet}`,
+    html: `<p>De : ${from}</p><p>${message}</p>`
+  });
+}

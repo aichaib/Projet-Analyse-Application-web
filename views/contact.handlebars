@@ -1,0 +1,27 @@
+<div class="form-container">
+  <h1 class="titre-formulaire">Contactez-nous</h1>
+
+  <form id="contact-form" class="formulaire">
+    <div class="groupe-formulaire">
+      <label for="sujet">Sujet</label>
+      <input type="text" name="sujet" id="sujet" required placeholder="Sujet du message" />
+    </div>
+
+    <div class="groupe-formulaire">
+      <label for="message">Message</label>
+      <textarea name="message" id="message" rows="6" required placeholder="Votre message ici..."></textarea>
+    </div>
+
+    {{#unless user}}
+    <div class="groupe-formulaire">
+      <label for="email">Adresse e-mail</label>
+      <input type="email" name="email" id="email" required placeholder="votre@email.com" />
+    </div>
+    {{/unless}}
+
+    <button type="submit" class="btn-formulaire">Envoyer</button>
+    <div id="contact-status" class="info-formulaire"></div>
+  </form>
+</div>
+
+<script src="/js/contact.js"></script>
