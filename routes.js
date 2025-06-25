@@ -649,14 +649,10 @@ router.get("/list/equipement", async (req, res) => {
 router.post("/new/equipement", async (req, res) => {
   const { nom } = req.body;
   try {
-    const nouvelEquipement = await createEquipement({ nom });
+    await createEquipement({ nom });
 
-    //renvoyer JSON au lieu de res.redirect
-    return res.status(201).json({
-      message: "Équipement ajouté avec succès",
-      nom: nouvelEquipement.nom,
-      redirect: "/list/equipement"
-    });
+    res.redirect("/list/equipement");
+    
   } catch (error) {
     if (error.message.includes("existe déjà")) {
       return res.status(409).json({ error: error.message });
@@ -698,11 +694,7 @@ router.get('/equipement/modifier/:id', async (req, res) => {
 router.post('/equipement/modifier/:id', async (req, res) => {
   const id = parseInt(req.params.id);
   console.log("Requête POST modification equipement", { id, body: req.body });
-
-  // Récupération du nom depuis le corps
-  // Attention: body peut être vide si middleware manquant !
   const nom = req.body.nom;
-
   if (!nom || nom.trim() === "") {
     const messageErreur = "Le nom de l'équipement est requis.";
     if (req.headers['content-type'] === 'application/json') {
@@ -743,7 +735,7 @@ router.post('/equipement/:id/delete', async (req, res) => {
   }
 });
 
-import { getUserById  } from "./model/gestionUtilisateur.js"; // Assurez-vous que ces fonctions existent
+//import { getUserById  } from "./model/gestionUtilisateur.js"; // Assurez-vous que ces fonctions existent
 
 router.get("/admin/utilisateurs/:id/edit", requireAuth, async (req, res, next) => {
   try {
