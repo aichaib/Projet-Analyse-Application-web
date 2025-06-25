@@ -1,0 +1,34 @@
+<div class="page-admin-bg">
+  <div class="container">
+    <section class="col-lg-9">
+      <div class="card main-card">
+        <div class="card-body">
+          <h2 class="dashboard-title">Historique de mes actions</h2>
+
+          {{#if historique.length}}
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Détails</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each historique}}
+                  <tr>
+                    <td>{{action}}</td>
+                    <td>{{details}}</td>
+                    <td>{{timestamp}}</td>
+                  </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          {{else}}
+            <p>Aucune action enregistrée.</p>
+          {{/if}}
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
