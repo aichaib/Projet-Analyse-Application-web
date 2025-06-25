@@ -613,7 +613,8 @@ router.get("/list/equipement", async (req, res) => {
     const equipements = await listEquipements();
     res.render("listEquipement", {
       titres: "Liste des Equipements",
-      styles: ["/css/style.css", "/css/equipement.css"],     
+      styles: ["/css/style.css", "/css/equipement.css"],    
+      scripts: ["/js/equipement"],
       equipements,
     });
   } catch (error) {
@@ -627,16 +628,21 @@ router.get("/list/equipement", async (req, res) => {
 router.post("/new/equipement", async (req, res) => {
   const { nom } = req.body;
   try {
-    await createEquipement({ nom });
-    res.redirect("/list/equipement");
+    const nouvelEquipement = await createEquipement({ nom });
+
+    //renvoyer JSON au lieu de res.redirect
+    return res.status(201).json({
+      message: "Équipement ajouté avec succès",
+      nom: nouvelEquipement.nom,
+      redirect: "/list/equipement"
+    });
   } catch (error) {
     if (error.message.includes("existe déjà")) {
       return res.status(409).json({ error: error.message });
     }
     console.error("Erreur création équipement:", error);
-    res.status(500).json({ error: "Erreur serveur" });
+    return res.status(500).json({ error: "Erreur serveur" });
   }
-  return null;
 });
 
 router.get("/new/equipement", (req, res) => {
@@ -647,51 +653,73 @@ router.get("/new/equipement", (req, res) => {
   });
 });
 
-
-/*
-// Get formulaire d'édition d'un equipement
-router.get("/:id/edit", async (req, res) => {
+// Get formulaire de modification d'un equipement
+router.get('/equipement/modifier/:id', async (req, res) => {
   const id = parseInt(req.params.id);
   try {
-    const equipement = await prisma.equipement.findUnique({
-      where: { id },
-    });
+    const equipement = await listEquipements().then(equipements => equipements.find(e => e.id === id));
     if (!equipement) {
-      return res.status(404).send("Equipement not found");
+      return res.status(404).send("Équipement non trouvé");
     }
-    res.render("equipements/edit", { equipement });
+    res.render("editEquipement", {
+      titre: "Modifier un équipement",
+      styles: ["/css/style.css", "/css/equipement.css"],
+      scripts: ["/js/equipement.js"],
+      equipement
+    });
   } catch (error) {
-    console.error("Error fetching equipement for edit:", error);
-    res.status(500).send("Internal Server Error");
-  }
-  return null;
-});
-*/
-// Put mise à jour d'un equipement
-router.put("/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  const { nom } = req.body;
-  try {
-    await updateEquipement(id, { nom });
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Error updating equipement:", error);
+    console.error("Error fetching equipement:", error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-// Delete suppression d'un equipement
-router.delete("/:id", async (req, res) => {
+// Post modification d'un equipement
+router.post('/equipement/modifier/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+  console.log("Requête POST modification equipement", { id, body: req.body });
+
+  // Récupération du nom depuis le corps
+  // Attention: body peut être vide si middleware manquant !
+  const nom = req.body.nom;
+
+  if (!nom || nom.trim() === "") {
+    const messageErreur = "Le nom de l'équipement est requis.";
+    if (req.headers['content-type'] === 'application/json') {
+      return res.status(400).json({ error: messageErreur });
+    } else {
+      return res.status(400).send(messageErreur);
+    }
+  }
+
+  try {
+    await updateEquipement(id, { nom: nom.trim() });
+
+    if (req.headers['content-type'] === 'application/json') {
+      return res.json({ success: true, message: "Équipement mis à jour." });
+    } else {
+      return res.redirect("/list/equipement");
+    }
+  } catch (error) {
+    console.error("Erreur modification equipement:", error);
+    if (req.headers['content-type'] === 'application/json') {
+      return res.status(500).json({ error: error.message });
+    } else {
+      return res.status(500).send("Erreur de mise à jour");
+    }
+  }
+});
+
+
+
+// Delete un equipement
+router.post('/equipement/:id/delete', async (req, res) => {
   const id = parseInt(req.params.id);
   try {
     await deleteEquipement(id);
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting equipement:", error);
-    res.status(500).send("Internal Server Error");
+    res.redirect('/list/equipement');
+  } catch (err) {
+    res.status(500).send('Erreur serveur');
   }
 });
 
 export default router;
-
-
