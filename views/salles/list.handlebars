@@ -11,24 +11,32 @@
         <tr>
           <th>Nom</th>
           <th>Capacité</th>
+          <th>Equipement</th>
           <th>Emplacement</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {{#each salles}}
-          <tr>
-            <td>{{this.nom}}</td>
-            <td>{{this.capacite}}</td>
-            <td>{{this.emplacement}}</td>
-            <td>
-              <a href="/salles/{{this.id}}/edit" class="btn-modifier">Modifier</a>
-              <form action="/salles/{{this.id}}" method="POST" class="form-supprimer" onsubmit="return confirm('Confirmer la suppression ?');">
-                <input type="hidden" name="_method" value="DELETE">
-                <button type="submit" class="btn-supprimer">Supprimer</button>
-              </form>
-            </td>
-          </tr>
+        <tr>
+          <td>{{this.nom}}</td>
+          <td>{{this.capacite}}</td>
+          <td>
+            {{#each equipements}}
+            {{this.equipement.nom}}{{#unless @last}}, {{/unless}}
+            {{/each}}
+          </td>
+
+          <td>{{this.emplacement}}</td>
+          <td>
+            <a href="/salles/{{this.id}}/edit" class="btn-modifier">Modifier</a>
+            <form action="/salles/{{this.id}}" method="POST" class="form-supprimer"
+              onsubmit="return confirm('Confirmer la suppression ?');">
+              <input type="hidden" name="_method" value="DELETE">
+              <button type="submit" class="btn-supprimer">Supprimer</button>
+            </form>
+          </td>
+        </tr>
         {{/each}}
       </tbody>
     </table>

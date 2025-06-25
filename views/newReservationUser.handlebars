@@ -1,55 +1,58 @@
 <div class="main-content">
   <div class="reservation-page">
-  
+
     <!-- COLONNE GAUCHE : RECHERCHE -->
     <div class="reservation-container">
       <a href="/accueil/user" class="btn-retour">← Retour</a>
       <h2>Rechercher une salle :</h2>
       <form id="formRecherche" class="form-recherche">
-      
+
+        <!-- Capacité (dynamique) -->
         <div class="field-group">
           <label for="capacite">Capacité :</label>
           <select id="capacite">
             <option value="">Sélectionner la capacité</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
+            {{#each capacites}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
           </select>
         </div>
-        
+
+        <!-- Équipements (dynamique) -->
         <div class="field-group">
           <label for="equipement">Équipements :</label>
           <select id="equipement">
             <option value="">Sélectionner les équipements</option>
-            <option value="Projecteur">Projecteur</option>
-            <option value="Tableau">Tableau</option>
-            <option value="Ordinateur">Ordinateur</option>
+            {{#each equipements}}
+            <option value="{{this.nom}}">{{this.nom}}</option>
+            {{/each}}
           </select>
         </div>
-        
+
+        <!-- Date -->
         <div class="field-group">
           <label for="dateReservation">Date :</label>
           <input type="date" id="dateReservation" placeholder="Sélectionner la date">
         </div>
-        
+
+        <!-- Heure -->
         <div class="field-group">
           <label for="heureReservation">Heure :</label>
           <input type="time" id="heureReservation" placeholder="Sélectionner l'heure">
         </div>
-        
+
+        <!-- Bouton -->
         <button type="submit" id="btnRechercher" class="btn-action">Rechercher</button>
       </form>
     </div>
-    
+
     <!-- COLONNE DROITE : RÉSULTAT -->
     <div class="reservation-results">
       <span class="titre-resultat">Résultat :</span>
       <div class="result-content">
         <div class="grille-salles">
           <div id="resultatsSalles">
-              <p>Veuillez lancer une recherche pour voir les salles disponibles.</p>
+            <p>Veuillez lancer une recherche pour voir les salles disponibles.</p>
           </div>
         </div>
       </div>
@@ -59,6 +62,6 @@
         </button>
       </div>
     </div>
-  
+
   </div>
 </div>
