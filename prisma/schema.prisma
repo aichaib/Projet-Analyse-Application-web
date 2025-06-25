@@ -71,3 +71,12 @@ model UtilisationSalle {
   utilisateur      Utilisateur         @relation(fields: [utilisateurId], references: [id])
   salle            Salle               @relation(fields: [salleId], references: [id])
 }
+
+model HistoriqueAction {
+  id        Int      @id @default(autoincrement())
+  adminId   Int
+  action    String
+  details   String
+  timestamp DateTime @default(now())
+}
+

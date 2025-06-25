@@ -1,0 +1,87 @@
+/* Formulaire Salle - Modifier Style */
+.formulaire-salle {
+  max-width: 600px;
+  margin: 100px auto;
+  background-color: white;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.formulaire-salle .title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #0b2c4d;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Form Fields */
+.formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #0b2c4d;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: #0b2c4d;
+  outline: none;
+}
+
+/* Button Submit */
+.btn-envoyer {
+  background-color: #0b2c4d;
+  color: white;
+  font-size: 1rem;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  align-self: center;
+  transition: background-color 0.3s ease;
+}
+
+.btn-envoyer:hover {
+  background-color: #144067;
+}
+
+/* Retour Link */
+.retour {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.btn-retour {
+  color: #0b2c4d;
+  text-decoration: none;
+  font-size: 0.95rem;
+  border: 1px solid #0b2c4d;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn-retour:hover {
+  background-color: #0b2c4d;
+  color: white;
+}
