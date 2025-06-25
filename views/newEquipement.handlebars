@@ -1,0 +1,13 @@
+<div class="container">
+    <h1 class="text-center mb-4">Ajouter un nouvel équipement</h1>
+   
+    <form action="/new/equipement" id="equipementForm" method="POST" class="formulaire-equipement">
+        <div class="mb-3">
+            <label for="nom" class="form-label">Nom de l'équipement</label>
+            <input type="text" class="form-control" id="nom" name="nom" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Ajouter l'équipement</button>
+        <a href="/list/equipement" class="mt-4 btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Retour à la liste des équipements</a>
+    </form>
+</div>
