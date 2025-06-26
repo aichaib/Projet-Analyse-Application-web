@@ -83,7 +83,7 @@ export async function findSalleById(id) {
 }
 
 export async function findSalleByNom(nom) {
-  return await prisma.salle.findUnique({
+  return await prisma.salle.findMany({
     where: { nom }
   });
 }

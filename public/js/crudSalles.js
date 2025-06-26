@@ -5,12 +5,14 @@ document.getElementById("formSalle")?.addEventListener("submit", async (e) => {
   const nom = document.getElementById("nom").value.trim();
   const capacite = parseInt(document.getElementById("capacite").value);
   const emplacement = document.getElementById("emplacement").value.trim();
-  const equipementId = parseInt(document.getElementById("equipement").value);
+  const equipementOptions = document.getElementById("equipement").selectedOptions;
+  const equipementIds = Array.from(equipementOptions).map(opt => parseInt(opt.value));
+
 
   try {
     const response = await fetch("/salles", {
       method: "POST",
-      body: JSON.stringify({ nom, capacite, emplacement, equipementId }),
+      body: JSON.stringify({ nom, capacite, emplacement, equipementIds }),
       headers: { "Content-Type": "application/json" }
     });
 
@@ -84,3 +86,36 @@ async function listSalles() {
     console.error("Erreur lors de la requête GET :", error);
   }
 }
+document.getElementById("formEditSalle")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const id = window.location.pathname.split("/").at(-1);
+
+  const nom = document.getElementById("nom").value.trim();
+  const capacite = parseInt(document.getElementById("capacite").value);
+  const emplacement = document.getElementById("emplacement").value.trim();
+  const equipementOptions = document.getElementById("equipement").selectedOptions;
+  const equipementIds = Array.from(equipementOptions).map(opt => parseInt(opt.value));
+
+
+  try {
+    const response = await fetch(`/salles/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nom, capacite, emplacement, equipementIds })
+    });
+
+    console.log("STATUS:", response.status);
+    const result = await response.json();
+    console.log("REPONSE JSON:", result);
+
+    if (result.success) {
+      alert("Salle modifiée avec succès !");
+      window.location.href = "/salles";
+    } else {
+      alert(result.error || "Erreur lors de la modification.");
+    }
+  } catch (err) {
+    console.error("Erreur PUT :", err);
+    alert("Erreur serveur.");
+  }
+});
