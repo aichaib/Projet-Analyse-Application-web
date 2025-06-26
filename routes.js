@@ -28,9 +28,6 @@ import {
   getAllReservations
 } from "./model/utilisation_salle.js";
 
-import {
-  listEquipements, createEquipement, updateEquipement, deleteEquipement
-} from "./model/equipement.js";
 
 import {
   getHistoriqueByAdminId, logAdminAction
@@ -640,8 +637,7 @@ router.get("/salles/new", requireAuth, async (req, res, next) => {
   }
 });
 
-// ── Historique complet des réservations (admin) ─────────────────────
-import { getAllReservations } from "./model/utilisation_salle.js";  // Assurez-vous que cette fonction existe
+
 
 router.get("/admin/historique", requireAuth, async (req, res, next) => {
   try {
@@ -877,11 +873,6 @@ router.post('/user/settings', async (req, res) => {
   }
 });
 
-// ─── ADMIN : AUTH, INSCRIPTION, 2FA ─────────────────────────────────────
-function requireAuth(req, res, next) {
-  if (req.session?.user?.adminAuth) return next();
-  return res.redirect("/admin/login");
-}
 
 router.get("/admin/login", (req, res) => {
   res.render("adminLogin", {
