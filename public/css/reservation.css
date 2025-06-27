@@ -1,194 +1,302 @@
-/* ── Variables de couleur ── */
 :root {
-  --primary:    #0a2e61;
-  --light-bg:   #f5f5f5;
-  --grey-bg:    #e9e9e9;
-  --text-dark:  #333;
-  --text-light: #fff;
+  --primary: #0066ff;
+  --primary-dark: #0047b3;
+  --primary-light: #e6f0ff;
+  --secondary: #00ffcc;
+  --dark: #121212;
+  --darker: #0a0a0a;
+  --light: #ffffff;
+  --glass: rgba(255, 255, 255, 0.1);
+  --glass-dark: rgba(0, 0, 0, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --blur: blur(12px);
+  --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ── Mise en page globale ── */
 .reservation-page {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: 320px 1fr;
   gap: 2rem;
-  padding: 1rem;
-  background: var(--light-bg);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  max-width: 1200px;
-  margin: 1rem auto;
-  border-radius: 0.75rem;
-}
-
-.main-content {
-  padding-top: 50px; 
-}
-
-/* ── Colonne gauche fixe ── */
-.reservation-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(100vh - 80px);
   position: relative;
-  flex:none;           
-  background: #fff;
-  width: 300px;
-  padding: 5rem 1.5rem 1.5rem;
-  border-radius: .75rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+  overflow: hidden;
 }
 
-/* ── Bouton Retour ── */
-.btn-retour {
+.reservation-page::before {
+  content: '';
   position: absolute;
-  top: 1rem;
-  left: 1rem;
-  background: var(--grey-bg);
-  color: var(--text-dark);
-  padding: .5rem 1rem;
-  border-radius: 1rem;
-  text-decoration: none;
-  font-size: 1rem;
-  transition: opacity .2s;
-}
-.btn-retour:hover {
-  opacity: .8;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 20% 30%, rgba(0, 102, 255, 0.1) 0%, transparent 25%), radial-gradient(circle at 80% 70%, rgba(0, 255, 204, 0.1) 0%, transparent 25%);
+  z-index: -1;
+  animation: pulse 20s infinite alternate;
 }
 
-/* ── Formulaire ── */
+.reservation-container {
+  background: var(--glass-dark);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+}
+
+.reservation-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.btn-retour {
+  position: relative;
+  z-index: 10;
+  top: 1.5rem;
+  left: 1.5rem;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  color: var(--light);
+  padding: 0.75rem 1.25rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  display: inline-flex;
+  gap: 0.5rem;
+  margin-bottom: 40px;
+  border: 1px solid var(--glass-border);
+}
+
+.btn-retour:hover {
+  background: var(--glass);
+  transform: translateX(-5px);
+}
+
 .form-recherche {
-  margin-top: 2rem;          
+  margin-top: 3rem;
 }
+
 .field-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  position: relative;
 }
+
 .field-group label {
-  margin-bottom: .5rem;
-  color: var(--text-dark);
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--light);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
 }
+
 .field-group select,
 .field-group input {
   width: 100%;
-  padding: .75rem;
-  border: none;
-  border-radius: 1rem;
-  background: var(--grey-bg);
+  padding: 1rem;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
   font-size: 1rem;
+  color: var(--light);
+  transition: var(--transition);
+  box-shadow: var(--shadow);
 }
 
-/* ── Bouton Rechercher & Réserver ── */
-.btn-action {
-  display: block;
-  width: 100%;
-  margin-top: 1rem;
-  padding: .75rem;
-  background: var(--primary);
-  color: var(--text-light);
-  border: none;
-  border-radius: .5rem;
-  font-size: 1.1rem;
-  text-align: center;
-  cursor: pointer;
-  transition: opacity .2s;
+.field-group select:focus,
+.field-group input:focus {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 2px rgba(0, 255, 204, 0.3);
 }
+
+.btn-recherche,
+.btn-action,
+.btn-reserver {
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 12px;
+  transition: var(--transition);
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+}
+
+.btn-recherche,
+.btn-action {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: var(--light);
+  border: none;
+  margin-top: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-recherche:hover,
 .btn-action:hover {
-  opacity: .9;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 102, 255, 0.4);
+}
+
+.btn-action::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: var(--transition);
+}
+
+.btn-action:hover::before {
+  left: 100%;
+}
+.btn-recherche {
+  margin-bottom: 50px;
 }
 
 .btn-reserver {
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
-    padding: .75rem 1.5rem;
-    background: #1e3a5f;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    cursor: pointer;
-    align-self: flex-end;
-    width: auto !important; 
-}
-
-.btn-res{
-    max-width: 100px;
-}
-
-/* ── Colonne droite ── */
-.reservation-results {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  display: inline-flex !important;
   align-items: center;
-}
-
-.result-content {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.result-actions {
-  flex-shrink: 0;
-  text-align: center;
-  width: 100%;
-  max-width: 500px;
-}
-
-.titre-resultat {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: var(--text-dark);
-  width: 100%;
-  max-width: 500px;
-  padding: 0 1rem;
-  text-align: center;
-}
-
-.grille-salles {
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, .05);
-  max-width: 500px;
-  width: 100%;
-  align-self: center;
-  margin-top: 0;
-  margin-bottom: 1rem;
-  padding: 1.5rem;
-  border-radius: .75rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
   justify-content: center;
-  text-align: center;
-  min-height: 400px;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--secondary), #00ccaa);
+  color: var(--dark);
+  border: none;
+}
+
+.btn-reserver:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 255, 204, 0.4);
 }
 
 .btn-reserver:disabled {
-  background-color: #a9a9a9;
+  background: var(--glass-dark);
+  color: rgba(255,255,255,0.5);
   cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-.grille-salles #resultatsSalles {
-  flex: none;
+.reservation-results {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.titre-resultat {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--light);
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+  text-align: left;
   width: 100%;
 }
 
-/* ── Responsive (mobile) ── */
-@media (max-width: 992px) {
+.titre-resultat::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: var(--secondary);
+  border-radius: 3px;
+}
+
+.grille-salles {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  width: 100%;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.grille-salles:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes pulse {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(5%, 5%); }
+  100% { transform: translate(-5%, -5%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@media (max-width: 1024px) {
   .reservation-page {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+  }
+
+  .reservation-container {
+    position: static;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .titre-resultat {
+    text-align: center;
+  }
+
+  .titre-resultat::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 768px) {
+  .reservation-page {
     padding: 1rem;
   }
-  .reservation-container,
-  .reservation-results {
-    flex: none;
-    width: 100%;
+
+  .grille-salles {
+    padding: 1.5rem;
+  }
+
+  .titre-resultat {
+    font-size: 1.5rem;
+  }
+
+  .btn-reserver,
+  .btn-action {
+    padding: 0.9rem 1.5rem;
+    font-size: 0.9rem;
   }
 }
