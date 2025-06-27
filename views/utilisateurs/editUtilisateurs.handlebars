@@ -1,10 +1,9 @@
 <section class="formulaire-utilisateur">
-  <h1 class="title">Modifier l'utilisateur</h1>
 
   <form action="/admin/utilisateurs/{{user.id}}" method="POST" class="formulaire">
     <input type="hidden" name="_method" value="PUT">
 
-    <div class="form-group">
+    <div class="form-group-prenom">
       <label for="prenom">Prénom :</label>
       <input type="text" id="prenom" name="prenom" value="{{user.prenom}}" required>
     </div>
@@ -31,6 +30,6 @@
   </form>
 
   <div class="retour">
-    <a href="/admin/utilisateurs" class="btn-retour">← Retour à la liste</a>
+    <a href="/admin/utilisateurs" class="btn-retour">Retour à la liste</a>
   </div>
 </section>

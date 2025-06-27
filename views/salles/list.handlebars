@@ -1,5 +1,4 @@
 <section class="salles-list-container">
-  <h1 class="title">Liste des salles</h1>
 
   <div class="actions">
     <a href="/salles/new" class="btn-ajouter">+ Ajouter une nouvelle salle</a>
@@ -33,7 +32,7 @@
             <form action="/salles/{{this.id}}" method="POST" class="form-supprimer"
               onsubmit="return confirm('Confirmer la suppression ?');">
               <input type="hidden" name="_method" value="DELETE">
-              <button type="submit" class="btn-supprimer">Supprimer</button>
+              <button type="submit" class="btn-supprimer-salle" data-id="{{this.id}}">Supprimer</button>
             </form>
           </td>
         </tr>
@@ -41,4 +40,11 @@
       </tbody>
     </table>
   </div>
+
+  
+  <div class="retour">
+    <a href="/accueil/admin" class="btn-retour">← Retour</a>
+  </div>
 </section>
+
+<script src="/js/salles.js"></script>

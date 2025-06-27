@@ -1,7 +1,7 @@
 <div class="page-admin-bg">
+  <!-- Sidebar stays within the Bootstrap container -->
   <div class="container">
     <div class="row g-4">
-
       <!-- Sidebar -->
       <aside class="col-lg-3">
         <div class="card sidebar-card">
@@ -18,18 +18,17 @@
           </div>
         </div>
       </aside>
-
-      <!-- Main Content -->
-      <section class="col-lg-9">
-        <div class="card main-card text-center">
-          <div class="card-body">
-            <h2 class="dashboard-title">Bienvenue {{user.nom}} !</h2>
-            <a href="/salles/new" class="btn dashboard-btn-primary"><i class="bi bi-plus-lg me-2"></i>Ajouter une salle</a>
-            <a href="/salles" class="btn dashboard-btn-secondary"><i class="bi bi-eye me-2"></i>Voir toutes les salles</a>
-          </div>
-        </div>
-      </section>
-
     </div>
   </div>
+
+  <!-- Main content OUTSIDE Bootstrap's container -->
+  <section class="d-flex justify-content-center align-items-center" style="margin-left: 280px; min-height: calc(100vh - 80px); padding: 2rem;">
+    <div class="main-card text-center">
+      <div class="card-body">
+        <h2 class="dashboard-title">Bienvenue {{user.nom}} !</h2>
+        <a href="/salles/new" class="btn dashboard-btn-primary"><i class="bi bi-plus-lg me-2"></i>Ajouter une salle</a>
+        <a href="/salles" class="btn dashboard-btn-secondary"><i class="bi bi-eye me-2"></i>Voir toutes les salles</a>
+      </div>
+    </div>
+  </section>
 </div>
