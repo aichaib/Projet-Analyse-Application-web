@@ -71,3 +71,77 @@ export async function sendInscriptionVerificationCode(firstName, lastName, email
     throw err;
   }
 }
+
+// Envoie d'un message via le formulaire "Contactez-nous"
+export async function sendContactMessage(email, sujet, message) {
+  const html = `
+    <h2>Message de contact</h2>
+    <p><strong>De :</strong> ${email}</p>
+    <p><strong>Sujet :</strong> ${sujet}</p>
+    <p><strong>Message :</strong></p>
+    <p>${message.replace(/\n/g, "<br>")}</p>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: `"Formulaire Contact" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER, // Le message sera envoyé à l'adresse de l'admin
+      subject: `Nouveau message : ${sujet}`,
+      html
+    });
+    console.log("Message de contact envoyé, ID =", info.messageId);
+    return info;
+  } catch (err) {
+    console.error("Erreur envoi message contact :", err);
+    throw err;
+  }
+}
+
+
+// export async function envoyerMessageContact(sujet, message, emailUtilisateur) {
+//   const mailOptions = {
+//     from: '"Campus Booking" <campusbooking2025@gmail.com>',
+//     to: "admin@tonsite.com", // ou un admin réel
+//     subject: `Message de contact : ${sujet}`,
+//     html: `
+//       <h3>Message de Contact</h3>
+//       <p><strong>De :</strong> ${emailUtilisateur}</p>
+//       <p><strong>Sujet :</strong> ${sujet}</p>
+//       <p><strong>Message :</strong></p>
+//       <p>${message}</p>
+//     `
+//   };
+
+//   return transporter.sendMail(mailOptions);
+// }
+
+export async function envoyerMessageContact(nom, email, sujet, message) {
+  const html = `
+    <h2>Message de contact reçu</h2>
+    <p><strong>Nom :</strong> ${nom}</p>
+    <p><strong>Adresse e-mail :</strong> ${email}</p>
+    <p><strong>Sujet :</strong> ${sujet}</p>
+    <p><strong>Message :</strong></p>
+    <p>${message.replace(/\n/g, '<br>')}</p>
+    <hr>
+    <p>Ce message a été envoyé depuis le formulaire de contact du site.</p>
+  `;
+
+  const mailOptions = {
+    from: `"Formulaire Contact" <${process.env.EMAIL_USER}>`,
+    to: process.env.EMAIL_USER, // L’administrateur reçoit le message
+    cc: email,                  // L’utilisateur reçoit une copie
+    subject: `Message de contact : ${sujet}`,
+    html,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Message de contact envoyé :", info.messageId);
+    return info;
+  } catch (err) {
+    console.error("Erreur envoi contact :", err);
+    throw err;
+  }
+}
+
