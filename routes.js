@@ -5,7 +5,6 @@ import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
-
 // ─── IMPORTS ─────────────────────────────────────────────────────────────
 import {
   getUserById, getUserByEmail, addUser, updateLastLogin, updateUser,
@@ -355,7 +354,7 @@ router.get("/salles", requireAuth, async (req, res, next) => {
     const salles = await listSalles();
     res.render("salles/list", {
       titres: "Liste des salles",
-      styles: ["/css/style.css", "/css/sallesList.css"],
+      styles: ["/css/style.css", "/css/styleSalles.css"],
       scripts: ["/js/salles.js"],
       salles
     });
@@ -400,7 +399,6 @@ router.post("/salles", requireAuth, async (req, res, next) => {
 
 
 // GET /salles/:id/edit
-// Formulaire d'édition d'une salle
 router.get("/salles/:id/edit", requireAuth, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
@@ -409,12 +407,15 @@ router.get("/salles/:id/edit", requireAuth, async (req, res, next) => {
       return res.status(404).send("Salle non trouvée");
     }
 
+    // Fetch equipements from database
+    const equipements = await listEquipements();
+
     await logAdminAction(req.session.user.id, "Accès à l'édition d'une salle", `Salle ID: ${id}`);
 
     res.render("salles/edit", {
       titre: "Modifier la salle",
       styles: ["/css/style.css", "/css/styleEdit.css"],
-      scripts: ["/js/crudSalles.js"],
+      scripts: ["model/gestion_salle.js"],
       salle,
       equipements
     });
@@ -448,17 +449,58 @@ router.put("/salles/:id", requireAuth, async (req, res, next) => {
 
 // DELETE /salles/:id
 // Supprime une salle
-router.delete("/salles/:id", requireAuth, async (req, res, next) => {
+router.delete("/api/salles/:id", requireAuth, async (req, res) => {
+  const { id } = req.params;
+  
+  if (!id || isNaN(id)) {
+    return res.status(400).json({ 
+      success: false,
+      error: "ID de salle invalide" 
+    });
+  }
+
   try {
-    const id = parseInt(req.params.id, 10);
-    await deleteSalle(id);
-    await logAdminAction(req.session.user.id, "Suppression d'une salle", `Salle ID: ${id}`);
-    res.json({ success: true });
+    // Verify salle exists first
+    const salle = await prisma.salle.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!salle) {
+      return res.status(404).json({
+        success: false,
+        error: "Salle non trouvée"
+      });
+    }
+
+    // Transaction for atomic operations
+    await prisma.$transaction([
+      prisma.salleEquipement.deleteMany({
+        where: { salleId: parseInt(id) }
+      }),
+      prisma.utilisationSalle.deleteMany({
+        where: { salleId: parseInt(id) }
+      }),
+      prisma.salle.delete({
+        where: { id: parseInt(id) }
+      })
+    ]);
+
+    await logAdminAction(req.session.user.id, "Suppression salle", `ID: ${id}`);
+    
+    return res.json({
+      success: true,
+      message: "Salle supprimée avec succès"
+    });
+
   } catch (err) {
-    next(err);
+    console.error("Erreur suppression:", err);
+    return res.status(500).json({
+      success: false,
+      error: "Erreur serveur",
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 });
-
 // ── Gestion des réservations utilisateur ────────────────────────────
 
 // GET /reservations
@@ -663,7 +705,7 @@ router.get("/salles/new", requireAuth, async (req, res, next) => {
     res.render("salles/newSalle", {
       titre: "Nouvelle salle",
       styles: ["/css/style.css", "/css/styleCreationSalle.css"],
-      scripts: ["/js/crudSalles.js"],
+      scripts: ["model/gestion_salle.js"],
       equipements
     });
   } catch (err) {
@@ -712,7 +754,7 @@ router.get("/admin/utilisateurs", requireAuth, async (req, res, next) => {
 // ── Gestion des équipements ────────────────────────────────────────
 import {
   listEquipements, createEquipement,
-  updateEquipement, deleteEquipement
+  updateEquipement, deleteEquipement,
 } from "./model/equipement.js";
 
 // Get liste de tous les equipements
@@ -721,8 +763,7 @@ router.get("/list/equipement", async (req, res) => {
     const equipements = await listEquipements();
     res.render("listEquipement", {
       titres: "Liste des Equipements",
-      styles: ["/css/style.css", "/css/equipement.css"],
-      styles: ["/css/style.css", "/css/equipement.css"],    
+      styles: ["/css/style.css", "/css/equipement.css"],   
       scripts: ["/js/equipement"],
 
       equipements,
@@ -827,7 +868,7 @@ router.post('/equipement/:id/delete', async (req, res) => {
 router.get("/admin/utilisateurs/:id/edit", requireAuth, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
-    const user = await getUserById(id); // Assuming you're using ID now, not email
+    const user = await getUserById(id); 
     if (!user) {
       return res.status(404).send("Utilisateur non trouvé");
     }
@@ -1039,7 +1080,7 @@ router.get("/salles/new", requireAuth, async (req, res, next) => {
   res.render("salles/newSalle", {
     titre: "Nouvelle salle",
     styles: ["/css/style.css", "/css/styleCreationSalle.css"],
-    scripts: ["/js/crudSalles.js"],
+    scripts: ["model/gestion_salle.js"],
     equipements
   });
 });
@@ -1084,7 +1125,7 @@ router.get("/salles/:id/edit", requireAuth, async (req, res, next) => {
     res.render("salles/edit", {
       titre: "Modifier la salle",
       styles: ["/css/style.css", "/css/styleEdit.css"],
-      scripts: ["/js/crudSalles.js"],
+      scripts: ["model/gestion_salle.js"],
       salle,
       equipements: equipementsAvecSelected
     });
@@ -1120,14 +1161,6 @@ router.put("/salles/:id", requireAuth, async (req, res) => {
   }
 });
 
-
-
-router.delete("/salles/:id", requireAuth, async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  await deleteSalle(id);
-  await logAdminAction(req.session.user.id, "Suppression d'une salle", `Salle ID: ${id}`);
-  res.json({ success: true });
-});
 
 // ─── RÉSERVATIONS UTILISATEUR ──────────────────────────────────────────
 router.get("/reservations", async (req, res, next) => {
