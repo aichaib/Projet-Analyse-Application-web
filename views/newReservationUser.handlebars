@@ -1,30 +1,30 @@
 <div class="main-content">
   <div class="reservation-page">
 
-    <!-- COLONNE GAUCHE : RECHERCHE -->
+    <!-- COLONNE GAUCHE : FORMULAIRE DE RECHERCHE -->
     <div class="reservation-container">
       <a href="/accueil/user" class="btn-retour">← Retour</a>
       <h2>Rechercher une salle :</h2>
       <form id="formRecherche" class="form-recherche">
 
-        <!-- Capacité (dynamique) -->
+        <!-- Capacité -->
         <div class="field-group">
           <label for="capacite">Capacité :</label>
-          <select id="capacite">
+          <select id="capacite" name="capacite">
             <option value="">Sélectionner la capacité</option>
             {{#each capacites}}
-            <option value="{{this}}">{{this}}</option>
+              <option value="{{this}}">{{this}}</option>
             {{/each}}
           </select>
         </div>
 
-        <!-- Équipements (dynamique) -->
+        <!-- Équipements -->
         <div class="field-group">
           <label for="equipement">Équipements :</label>
-          <select id="equipement">
+          <select id="equipement" name="equipement">
             <option value="">Sélectionner les équipements</option>
             {{#each equipements}}
-            <option value="{{this.nom}}">{{this.nom}}</option>
+              <option value="{{this.nom}}">{{this.nom}}</option>
             {{/each}}
           </select>
         </div>
@@ -32,34 +32,51 @@
         <!-- Date -->
         <div class="field-group">
           <label for="dateReservation">Date :</label>
-          <input type="date" id="dateReservation" placeholder="Sélectionner la date">
+          <input type="date" id="dateReservation" name="dateReservation">
         </div>
 
         <!-- Heure -->
         <div class="field-group">
           <label for="heureReservation">Heure :</label>
-          <input type="time" id="heureReservation" placeholder="Sélectionner l'heure">
+          <input type="time" id="heureReservation" name="heureReservation">
         </div>
 
-        <!-- Bouton -->
-        <button type="submit" id="btnRechercher" class="btn-recherche">Rechercher</button>
+        <!-- Bouton de recherche -->
+        <button type="submit" id="btnRechercher" class="btn-action">Rechercher</button>
       </form>
     </div>
 
-    <!-- COLONNE DROITE : RÉSULTAT -->
+    <!-- COLONNE DROITE : RÉSULTATS INITIAUX -->
     <div class="reservation-results">
       <span class="titre-resultat">Résultat :</span>
       <div class="result-content">
-        <div class="grille-salles">
-          <div id="resultatsSalles">
-            <p>Veuillez lancer une recherche pour voir les salles disponibles.</p>
-          </div>
+        <div id="resultatsSalles" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+          {{#if salles.length}}
+            {{#each salles}}
+              <div class="col">
+                <div class="card border-primary shadow-sm">
+                  <div class="card-body">
+                    <h5 class="card-title">{{nom}}</h5>
+                    <p class="card-text"><strong>Capacité :</strong> {{capacite}}</p>
+                    <p class="card-text">
+                      <strong>Équipements :</strong>
+                      {{#each equipements}}
+                        <span class="badge bg-secondary me-1">{{this.equipement.nom}}</span>
+                      {{/each}}
+                    </p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="/reservations/new/{{id}}" class="btn btn-primary">Réserver</a>
+                  </div>
+                </div>
+              </div>
+            {{/each}}
+          {{else}}
+            <p>Aucune salle disponible pour l’instant. Lancez une recherche !</p>
+          {{/if}}
+
         </div>
-      </div>
-      <div class="result-actions">
-        <button type="button" class="btn-action btn-reserver" disabled>
-          Réserver
-        </button>
       </div>
     </div>
 

@@ -1,7 +1,9 @@
 import { Router } from "express";
 import passport from "passport";
 import bcrypt from "bcrypt";
-import { PrismaClient } from '@prisma/client';
+
+import { PrismaClient } from "@prisma/client";
+
 const prisma = new PrismaClient();
 // ─── IMPORTS ─────────────────────────────────────────────────────────────
 import {
@@ -36,6 +38,13 @@ import {
 
 import { buildCalendar, monthNames } from "./model/calendareController.js";
 
+import { envoyerMessageContact } from "./model/email.js";
+
+import { getSallesFiltrees } from "./model/gestion_salle.js";
+
+
+
+
 const router = Router();
 
 // ─── PAGE PUBLIQUE ──────────────────────────────────────────────────────
@@ -50,20 +59,20 @@ router.get("/", (req, res) => {
 router.get("/contact", (req, res) => {
   res.render("contact", {
     titre: 'Contactez-nous',
-    styles: ['/css/forms.css', '/css/contact.css', '/css/style.css'],
+    styles: ['/css/form.css', '/css/contact.css', '/css/style.css'],
     scripts: ['/js/contact.js']
   });
 });
 
-router.post("/contact", async (req, res) => {
-  const { sujet, message } = req.body;
-  try {
-    await sendVerificationCode(req.user?.email || req.body.email, sujet, message);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ success: false, error: 'Erreur lors de l’envoi du message' });
-  }
-});
+// router.post("/contact", async (req, res) => {
+//   const { sujet, message } = req.body;
+//   try {
+//     await sendVerificationCode(req.user?.email || req.body.email, sujet, message);
+//     res.json({ success: true });
+//   } catch (err) {
+//     res.status(500).json({ success: false, error: 'Erreur lors de l’envoi du message' });
+//   }
+// });
 
 router.get("/deconnexion", (req, res) => {
   req.logout(err => {
@@ -531,48 +540,71 @@ router.get("/reservations", async (req, res, next) => {
 });
 
 // Formulaire de création d'une réservation
-router.get("/reservations/new", async (req, res, next) => {
-  if (!req.session.user) {
-    return res.redirect("/user/login");
-  }
+// /routes.js
+
+router.get("/reservations/new", async (req, res) => {
   try {
-    const salles = await getSalles();
-    const equipements = await listEquipements();
-    const capacites = await getCapacitesDisponibles();
+    const salles = await prisma.salle.findMany({
+      include: {
+        equipements: {
+          include: { equipement: true }
+        }
+      }
+    });
+
+    const capacites = await prisma.salle.findMany({
+      select: { capacite: true },
+      distinct: ['capacite'],
+      orderBy: { capacite: 'asc' }
+    });
+
+    const equipements = await prisma.equipement.findMany({
+      select: { nom: true }
+    });
+
+    // ✅ C'EST ICI ! Ajoute ce console.log avant le res.render
+    console.log("✅ Salles envoyées :", salles.map(s => ({
+      nom: s.nom,
+      capacite: s.capacite,
+      equipements: s.equipements.map(e => e.equipement.nom)
+    })));
 
     res.render("newReservationUser", {
       titre: "Nouvelle réservation",
       styles: ["/css/style.css", "/css/reservation.css"],
       scripts: ["/js/reservation.js"],
       salles,
+      capacites: capacites.map(c => c.capacite),
       equipements,
-      capacites,
       user: req.session.user
     });
+
   } catch (err) {
-    next(err);
+    console.error("❌ Erreur Prisma :", err);
+    res.status(500).send("Erreur lors du chargement des salles");
   }
 });
+
+
+
 
 // POST /reservations
 // Enregistre une nouvelle réservation
+// Recherche dynamique filtrée pour AJAX
 router.post("/api/salles/recherche", async (req, res) => {
+  const { capacite, equipement, date, heure } = req.body;
+
   try {
-    const { capacite, equipement, date, heure } = req.body;
-    const dateHeure = date && heure ? `${date}T${heure}` : null;
-
-    const salles = await getSallesDispoParCritere({
-      capacite: capacite ? parseInt(capacite, 10) : undefined,
-      equipement,
-      dateHeure
-    });
-
+    const salles = await getSallesFiltrees({ capacite, equipement, date, heure });
     res.json(salles);
   } catch (err) {
-    console.error("Erreur recherche salle :", err);
-    res.status(500).json({ error: "Erreur serveur" });
+    console.error(err);
+    res.status(500).json({ error: "Erreur serveur lors de la recherche" });
   }
 });
+
+
+
 
 // Annule une réservation
 router.delete("/reservations/:id", async (req, res, next) => {
@@ -910,11 +942,12 @@ router.post('/user/settings', async (req, res) => {
   const { prenom, nom, email } = req.body;
   try {
     await updateUser(req.user.id, { prenom, nom, email });
-    res.json({ success: true });
+    res.json({ success: true, message: 'Mise à jour réussie' });
   } catch (err) {
     res.status(400).json({ success: false, message: 'Erreur lors de la mise à jour' });
   }
 });
+
 
 
 router.get("/admin/login", (req, res) => {
@@ -1153,21 +1186,6 @@ router.get("/reservations", async (req, res, next) => {
   });
 });
 
-router.get("/reservations/new", async (req, res, next) => {
-  if (!req.session.user) return res.redirect("/user/login");
-  const salles = await getSalles();
-  const equipements = await listEquipements();
-  const capacites = await getCapacitesDisponibles();
-  res.render("newReservationUser", {
-    titre: "Nouvelle réservation",
-    styles: ["/css/style.css", "/css/reservation.css"],
-    scripts: ["/js/reservation.js"],
-    salles,
-    equipements,
-    capacites,
-    user: req.session.user
-  });
-});
 
 router.post("/api/reservations", async (req, res) => {
   if (!req.session.user) return res.status(401).json({ error: "Non authentifié" });
@@ -1182,12 +1200,6 @@ router.post("/api/reservations", async (req, res) => {
   res.json({ reservation, message: "Réservation réussie" });
 });
 
-router.post("/api/salles/recherche", async (req, res) => {
-  const { capacite, equipement, date, heure } = req.body;
-  const dateHeure = date && heure ? `${date}T${heure}` : null;
-  const salles = await getSallesDispoParCritere({ capacite: parseInt(capacite), equipement, dateHeure });
-  res.json(salles);
-});
 
 router.delete("/reservations/:id", async (req, res) => {
   if (!req.session.user) return res.status(401).json({ error: "Non authentifié." });
@@ -1318,3 +1330,43 @@ router.get("/admin/historiqueAdmin", requireAuth, async (req, res) => {
   });
 });
 export default router;
+
+import { sendContactMessage } from "./model/email.js"; // en haut si ce n'est pas déjà importé
+
+// POST /contact — Traitement du formulaire de contact
+router.post("/contact", async (req, res) => {
+  const { sujet, message, email, nom = "Utilisateur inconnu" } = req.body;
+
+  if (!sujet || !message || !email) {
+    return res.status(400).json({ success: false, error: "Champs manquants" });
+  }
+
+  try {
+    await envoyerMessageContact(nom, email, sujet, message);
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: "Erreur envoi email" });
+  }
+});
+
+
+router.post("/api/salles/recherche", async (req, res) => {
+  try {
+    const { capacite, equipement, date, heure } = req.body;
+    const dateHeure = date && heure ? `${date}T${heure}` : null;
+
+    const salles = await getSallesDispoParCritere({
+      capacite: capacite ? parseInt(capacite, 10) : undefined,
+      equipement,
+      dateHeure
+    });
+
+    res.json(salles);
+  } catch (err) {
+    console.error("Erreur recherche salle :", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+
+

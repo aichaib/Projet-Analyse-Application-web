@@ -88,3 +88,67 @@ export async function findSalleByNom(nom) {
   });
 }
 
+export async function getSallesFiltrees({ capacite, equipement, date, heure }) {
+  // Récupère toutes les salles avec leurs équipements
+  let salles = await listSalles();
+
+  // Filtrer par capacité
+  if (capacite) {
+    salles = salles.filter(salle => salle.capacite >= parseInt(capacite, 10));
+  }
+
+  // Filtrer par équipement (structure : salle.equipements[].equipement.nom)
+  if (equipement) {
+    salles = salles.filter(salle =>
+      salle.equipements.some(e => e.equipement.nom === equipement)
+    );
+  }
+
+  // TODO : Filtrer par date et heure => à gérer plus tard avec les réservations existantes
+
+  console.log("Salles filtrées :", salles.map(s => s.nom)); // debug
+
+  return salles;
+}
+
+export async function getSallesDispoParCritere({ capacite, equipement, dateHeure }) {
+  let salles = await prisma.salle.findMany({
+    include: {
+      equipements: {
+        include: {
+          equipement: true
+        }
+      },
+      reservations: true  // Si tu as une relation pour vérifier les réservations existantes
+    }
+  });
+
+  // Filtre capacité
+  if (capacite) {
+    salles = salles.filter(salle => salle.capacite >= capacite);
+  }
+
+  // Filtre équipement
+  if (equipement) {
+    salles = salles.filter(salle =>
+      salle.equipements.some(e => e.equipement.nom === equipement)
+    );
+  }
+
+  // Filtre dispo : si dateHeure fourni
+  if (dateHeure) {
+    const dateTime = new Date(dateHeure);
+
+    salles = salles.filter(salle => {
+      // Vérifie qu’aucune réservation existante chevauche ce créneau
+      return !salle.reservations.some(res =>
+        new Date(res.dateDebut) <= dateTime && dateTime <= new Date(res.dateFin)
+      );
+    });
+  }
+
+  console.log("Salles dispo filtrées :", salles.map(s => s.nom));
+  return salles;
+}
+
+

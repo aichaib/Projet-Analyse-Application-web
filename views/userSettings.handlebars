@@ -1,25 +1,46 @@
-<div class="form-container">
-  <h1 class="titre-formulaire">Paramètres du compte</h1>
+<section id="form-settings" class="container form-section">
+  <h2>Paramètres du compte</h2>
 
-  <form id="settings-form" class="formulaire">
-    <div class="groupe-formulaire">
+  <form id="settings-form" class="form needs-validation" novalidate>
+    <div class="form-group">
       <label for="prenom">Prénom</label>
-      <input type="text" id="prenom" name="prenom" value="{{user.prenom}}" required />
+      <input
+        type="text"
+        id="prenom"
+        name="prenom"
+        class="form-control"
+        value="{{user.prenom}}"
+        required
+      />
     </div>
 
-    <div class="groupe-formulaire">
+    <div class="form-group">
       <label for="nom">Nom</label>
-      <input type="text" id="nom" name="nom" value="{{user.nom}}" required />
+      <input
+        type="text"
+        id="nom"
+        name="nom"
+        class="form-control"
+        value="{{user.nom}}"
+        required
+      />
     </div>
 
-    <div class="groupe-formulaire">
+    <div class="form-group">
       <label for="email">Adresse e-mail</label>
-      <input type="email" id="email" name="email" value="{{user.email}}" required />
+      <input
+        type="email"
+        id="email"
+        name="email"
+        class="form-control"
+        value="{{user.email}}"
+        required
+      />
     </div>
 
-    <button type="submit" class="btn-formulaire">Enregistrer</button>
-    <div id="settings-status" class="info-formulaire"></div>
-  </form>
-</div>
+    <button type="submit" class="btn form-btn">Enregistrer</button>
 
-<script src="/js/userSettings.js"></script>
+    <!-- Message de confirmation -->
+    <div id="settings-status" class="mt-3 fw-bold"></div>
+  </form>
+</section>
