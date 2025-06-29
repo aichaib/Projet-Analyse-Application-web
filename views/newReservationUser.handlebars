@@ -13,7 +13,7 @@
           <select id="capacite" name="capacite">
             <option value="">Sélectionner la capacité</option>
             {{#each capacites}}
-              <option value="{{this}}">{{this}}</option>
+            <option value="{{this}}">{{this}}</option>
             {{/each}}
           </select>
         </div>
@@ -24,7 +24,7 @@
           <select id="equipement" name="equipement">
             <option value="">Sélectionner les équipements</option>
             {{#each equipements}}
-              <option value="{{this.nom}}">{{this.nom}}</option>
+            <option value="{{this.nom}}">{{this.nom}}</option>
             {{/each}}
           </select>
         </div>
@@ -52,33 +52,8 @@
       <div class="result-content">
         <div id="resultatsSalles" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
 
-          {{#if salles.length}}
-            {{#each salles}}
-              <div class="col">
-                <div class="card border-primary shadow-sm">
-                  <div class="card-body">
-                    <h5 class="card-title">{{nom}}</h5>
-                    <p class="card-text"><strong>Capacité :</strong> {{capacite}}</p>
-                    <p class="card-text">
-                      <strong>Équipements :</strong>
-                      {{#each equipements}}
-                        <span class="badge bg-secondary me-1">{{this.equipement.nom}}</span>
-                      {{/each}}
-                    </p>
-                  </div>
-                  <div class="card-footer text-center">
-                    <a href="/reservations/new/{{id}}" class="btn btn-primary">Réserver</a>
-                  </div>
-                </div>
-              </div>
-            {{/each}}
-          {{else}}
-            <p>Aucune salle disponible pour l’instant. Lancez une recherche !</p>
-          {{/if}}
 
         </div>
+
       </div>
     </div>
-
-  </div>
-</div>

@@ -62,15 +62,17 @@ model SalleEquipement {
 }
 
 model UtilisationSalle {
-  id               Int                 @id @default(autoincrement())
-  dateDebut        DateTime
-  dateFin          DateTime
-  utilisateurId    Int
-  salleId          Int
+  id                Int        @id @default(autoincrement())
+  utilisateurId     Int
+  salleId           Int
+  dateCreation      DateTime   @default(now()) // quand la réservation est faite
+  dateUtilisation   DateTime   // jour d’utilisation
+  heureUtilisation  DateTime   // heure exacte à laquelle l’utilisateur veut la salle
 
-  utilisateur      Utilisateur         @relation(fields: [utilisateurId], references: [id])
-  salle            Salle               @relation(fields: [salleId], references: [id])
+  utilisateur       Utilisateur @relation(fields: [utilisateurId], references: [id])
+  salle             Salle       @relation(fields: [salleId], references: [id])
 }
+
 
 model HistoriqueAction {
   id        Int      @id @default(autoincrement())

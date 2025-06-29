@@ -66,9 +66,22 @@ export async function getSallesDispoParCritere({ capacite, equipement, dateHeure
  * @returns la réservation créée
  */
 export const createReservation = async ({ utilisateurId, salleId, dateDebut, dateFin }) => {
+  const debut = new Date(dateDebut);
+  const fin = new Date(dateFin);
+
+  if (isNaN(debut.getTime()) || isNaN(fin.getTime())) {
+    throw new Error("Date invalide pour la réservation.");
+  }
+
   const reservation = await prisma.utilisationSalle.create({
-    data: { utilisateurId, salleId, dateDebut, dateFin }
+    data: {
+      utilisateurId,
+      salleId,
+      dateDebut: debut,
+      dateFin: fin
+    }
   });
+
   return reservation;
 };
 
