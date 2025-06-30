@@ -10,6 +10,7 @@ import express, { json } from "express";
 import helmet from "helmet";
 import compression from "compression";
 import cors from "cors";
+import methodOverride from "method-override";
 import cspOption from "./csp-options.js";
 
 // Importation de la session
@@ -27,7 +28,27 @@ const app = express();
 //initialisation de la memoire de session
 const MemoryStore = memorystore(session);
 
-app.engine("handlebars", engine()); //Pour indiquer a express que l'on utilise handlebars
+// Configuration des helpers Handlebars
+const hbs = engine({
+  helpers: {
+    formatTime: function(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString('fr-FR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    },
+    formatDate: function(dateString) {
+      const date = new Date(dateString);
+      return date.toISOString().split('T')[0];
+    },
+    eq: function(a, b) {
+      return a === b;
+    }
+  }
+});
+
+app.engine("handlebars", hbs); //Pour indiquer a express que l'on utilise handlebars
 app.set("view engine", "handlebars"); //Pour indiquer le rendu des vues
 app.set("views", "./views"); //Pour indiquer le dossier des vues
 
@@ -36,6 +57,7 @@ app.use(helmet(cspOption));
 app.use(compression());
 app.use(cors());
 app.use(json());
+app.use(methodOverride('_method'));
 
 //Middeleware pour gerer les sessions
 app.use(

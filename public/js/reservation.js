@@ -12,22 +12,23 @@ if (formRecherche) {
 
   let selectedSalleId = null;
 
-  // 1) Ajoute une carte salle dans le DOM
+  // 1) Ajoute une salle comme une ligne cliquable (div.salle-row)
   const addSalleToClient = salle => {
-    const div = document.createElement("div");
-    div.className = "salle-card";
-    div.dataset.id = salle.id;
-    div.innerHTML = /* html */`
-      <h3>${salle.nom}</h3>
-      <p>Capacité : ${salle.capacite}</p>
+    const row = document.createElement("div");
+    row.className = "salle-row";
+    row.dataset.id = salle.id;
+    row.innerHTML = /* html */`
+      <span class="salle-nom">${salle.nom}</span>
+      <span class="salle-capacite">Capacité : ${salle.capacite}</span>
     `;
-    div.addEventListener("click", () => {
-      document.querySelectorAll(".salle-card.selected")
+    row.addEventListener("click", () => {
+      document.querySelectorAll(".salle-row.selected")
         .forEach(el => el.classList.remove("selected"));
-      div.classList.add("selected");
+      row.classList.add("selected");
       selectedSalleId = salle.id;
+      btnReserverGlobal.disabled = false;
     });
-    resultatsContainer.appendChild(div);
+    resultatsContainer.appendChild(row);
   };
 
   // 2) Récupère les salles, filtre, affiche
@@ -51,7 +52,6 @@ if (formRecherche) {
         resultatsContainer.innerHTML = "<p>Aucune salle trouvée.</p>";
       } else {
         filtres.forEach(addSalleToClient);
-        btnReserverGlobal.disabled = false;
       }
     } catch (err) {
       console.error(err);
@@ -68,10 +68,13 @@ if (formRecherche) {
       return alert("Date et heure requises.");
     }
 
+    // Correction stricte : format ISO complet sans modification
+    const dateTime = new Date(`${dateInput.value}T${heureInput.value}`);
+    const dateTimeFin = new Date(dateTime.getTime() + 3 * 60 * 60 * 1000); // +3h
     const payload = {
-      salleId:   selectedSalleId,
-      dateDebut: `${dateInput.value}T${heureInput.value}`,
-      dateFin:   `${dateInput.value}T${heureInput.value}`
+      salleId: selectedSalleId,
+      dateDebut: dateTime.toISOString(),
+      dateFin: dateTimeFin.toISOString()
     };
 
     try {
@@ -108,5 +111,6 @@ if (formRecherche) {
 
   if (btnReserverGlobal) {
     btnReserverGlobal.addEventListener("click", createReservation);
+    btnReserverGlobal.disabled = true; // Désactivé par défaut
   }
 }
