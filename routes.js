@@ -5,8 +5,6 @@ import { PrismaClient } from "@prisma/client";
 import passport from "passport";
 import bcrypt from "bcrypt";
 
-import { PrismaClient } from "@prisma/client";
-
 const prisma = new PrismaClient();
 
 // ─── IMPORTS ─────────────────────────────────────────────────────────────
@@ -25,7 +23,7 @@ import { isEmailValid, isPasswordValid } from "./validation.js";
 
 import {
   listSalles, createSalle, updateSalle, deleteSalle,
-  findSalleById, findSalleByNom
+  findSalleById, findSalleByNom, getSallesFiltrees
 } from "./model/gestion_salle.js";
 
 import {
@@ -43,12 +41,6 @@ import {
 import { buildCalendar, monthNames } from "./model/calendareController.js";
 
 import { envoyerMessageContact } from "./model/email.js";
-
-import { getSallesFiltrees } from "./model/gestion_salle.js";
-
-
-
-
 const router = Router();
 
 // ─── PAGE PUBLIQUE ──────────────────────────────────────────────────────
