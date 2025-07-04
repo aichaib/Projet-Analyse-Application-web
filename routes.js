@@ -63,14 +63,21 @@ router.get("/contact", (req, res) => {
 });
 
 router.post("/contact", async (req, res) => {
-  const { sujet, message } = req.body;
+  const { nom, email, sujet, message } = req.body;
+
+  if (!nom || !email || !sujet || !message) {
+    return res.status(400).json({ success: false, error: "Tous les champs sont requis." });
+  }
+
   try {
-    await envoyerMessageContact(req.user?.email || req.body.email, sujet, message);
+    await envoyerMessageContact(nom, email, sujet, message);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false, error: 'Erreur lors de l’envoi du message' });
+    console.error("Erreur envoi formulaire de contact :", err);
+    res.status(500).json({ success: false, error: "Erreur lors de l’envoi du message" });
   }
 });
+
 
 router.get("/deconnexion", (req, res) => {
   req.logout(err => {
