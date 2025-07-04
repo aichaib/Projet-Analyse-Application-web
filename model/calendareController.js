@@ -1,4 +1,3 @@
-
 export const monthNames = [
   'Janvier','Février','Mars','Avril',
   'Mai','Juin','Juillet','Août',
@@ -36,6 +35,7 @@ export function buildCalendar(month, year, reservations) {
       day: d.getDate(),
       inMonth: d.getMonth() === month,
       reservations: todays.map(r => ({
+        id:        r.id,
         salle:     r.salle,
         dateDebut: r.dateDebut,
         dateFin:   r.dateFin

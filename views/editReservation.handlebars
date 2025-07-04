@@ -1,0 +1,97 @@
+<div class="main-content">
+  <div class="reservation-page">
+  
+    <!-- COLONNE GAUCHE : MODIFICATION -->
+    <div class="reservation-container">
+      <a href="/reservations" class="btn-retour">← Retour aux réservations</a>
+      <h2>Modifier la réservation :</h2>
+      <form id="formModification" class="form-recherche">
+      
+        <div class="field-group">
+          <label for="salle">Salle :</label>
+          <select id="salle" required>
+            <option value="">Sélectionner une salle</option>
+            {{#each salles}}
+              <option value="{{this.id}}" {{#if (eq this.id ../reservation.salleId)}}selected{{/if}}>
+                {{this.nom}} ({{this.capacite}} places)
+              </option>
+            {{/each}}
+          </select>
+        </div>
+        
+        <div class="field-group">
+          <label for="dateReservation">Date :</label>
+          <input type="date" id="dateReservation" value="{{formatDate reservation.dateDebut}}" required>
+        </div>
+        
+        <div class="field-group">
+          <label for="heureReservation">Heure :</label>
+          <input type="time" id="heureReservation" value="{{formatTime reservation.dateDebut}}" required>
+        </div>
+        
+        <button type="submit" class="btn-action">Modifier la réservation</button>
+      </form>
+    </div>
+    
+    <!-- COLONNE DROITE : RÉSUMÉ -->
+    <div class="reservation-results">
+      <span class="titre-resultat">Résumé de la modification :</span>
+      <div class="result-content">
+        <div class="grille-salles">
+          <div id="resumeReservation">
+            <p>Réservation actuelle :</p>
+            <ul>
+              <li><strong>Salle :</strong> {{reservation.salle.nom}}</li>
+              <li><strong>Date :</strong> {{formatDate reservation.dateDebut}}</li>
+              <li><strong>Heure :</strong> {{formatTime reservation.dateDebut}}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+</div>
+
+<script>
+document.getElementById('formModification').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const salleId = document.getElementById('salle').value;
+  const date = document.getElementById('dateReservation').value;
+  const heure = document.getElementById('heureReservation').value;
+  
+  if (!salleId || !date || !heure) {
+    alert('Veuillez remplir tous les champs.');
+    return;
+  }
+  
+  const dateTime = new Date(`${date}T${heure}`);
+  const payload = {
+    salleId: parseInt(salleId),
+    dateDebut: dateTime.toISOString(),
+    dateFin: dateTime.toISOString()
+  };
+  
+  try {
+    const response = await fetch('/reservations/{{reservation.id}}', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (response.ok) {
+      alert('Réservation modifiée avec succès !');
+      window.location.href = '/reservations';
+    } else {
+      const error = await response.json();
+      alert('Erreur : ' + (error.error || 'Erreur inconnue'));
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+    alert('Erreur réseau, réessayez plus tard');
+  }
+});
+</script> 

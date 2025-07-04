@@ -2,12 +2,6 @@
     <!-- Menu latéral -->
     <aside class="sidebar">
         <nav class="calendar-nav">
-            <button type="button" class="nav-item">
-                <i class="bi bi-pencil-square"></i> Modifier une réservation
-            </button>
-            <button type="button" class="nav-item">
-                <i class="bi bi-x-circle"></i> Annuler
-            </button>
             <a href="/accueil/user" class="nav-item">
                 <i class="bi bi-arrow-left"></i> Retour
             </a>
@@ -42,10 +36,18 @@
                     <div class="day-number">{{day}}</div>
 
                     {{#each reservations}}
-                    <div class="event">
+                    <div class="event" data-reservation-id="{{id}}">
                         <div class="event-room">{{salle.nom}}</div>
                         <div class="event-time">
                             {{formatTime dateDebut}} – {{formatTime dateFin}}
+                        </div>
+                        <div class="event-actions">
+                            <button class="btn-modifier-event">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button class="btn-supprimer-event">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
                         </div>
                     </div>
                     {{/each}}
@@ -54,4 +56,12 @@
             </div>
         </section>
     </div>
+</div>
+
+<!-- Modal de confirmation/modification -->
+<div id="calendar-modal" class="calendar-modal" style="display:none;">
+  <div class="calendar-modal-content">
+    <span class="calendar-modal-close" id="calendar-modal-close">&times;</span>
+    <div id="calendar-modal-body"></div>
+  </div>
 </div>

@@ -1,10 +1,14 @@
 import { Router } from "express";
+
+import { PrismaClient } from "@prisma/client";
+
 import passport from "passport";
 import bcrypt from "bcrypt";
 
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
 // ─── IMPORTS ─────────────────────────────────────────────────────────────
 import {
   getUserById, getUserByEmail, addUser, updateLastLogin, updateUser,
@@ -622,6 +626,80 @@ router.delete("/reservations/:id", async (req, res, next) => {
   }
 });
 
+// GET /reservations/:id/edit - Page de modification d'une réservation
+router.get("/reservations/:id/edit", async (req, res, next) => {
+  if (!req.session.user) {
+    return res.redirect("/user/login");
+  }
+  try {
+    const reservationId = parseInt(req.params.id, 10);
+    const reservation = await prisma.utilisationSalle.findFirst({
+      where: { 
+        id: reservationId,
+        utilisateurId: req.session.user.id 
+      },
+      include: { salle: true }
+    });
+    
+    if (!reservation) {
+      return res.status(404).send("Réservation non trouvée");
+    }
+    
+    const salles = await getSalles();
+    res.render("editReservation", {
+      titre: "Modifier la réservation",
+      styles: ["/css/style.css", "/css/reservation.css"],
+      scripts: ["/js/reservation.js"],
+      reservation,
+      salles,
+      user: req.session.user
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PUT /reservations/:id - Modifier une réservation
+router.put("/reservations/:id", async (req, res, next) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "Non authentifié." });
+  }
+  try {
+    const reservationId = parseInt(req.params.id, 10);
+    const { salleId, dateDebut, dateFin } = req.body;
+    
+    if (!salleId || !dateDebut || !dateFin) {
+      return res.status(400).json({ error: "Données manquantes." });
+    }
+    
+    // Vérifier que la réservation appartient à l'utilisateur
+    const existingReservation = await prisma.utilisationSalle.findFirst({
+      where: { 
+        id: reservationId,
+        utilisateurId: req.session.user.id 
+      }
+    });
+    
+    if (!existingReservation) {
+      return res.status(404).json({ error: "Réservation non trouvée." });
+    }
+    
+    // Mettre à jour la réservation
+    const updatedReservation = await prisma.utilisationSalle.update({
+      where: { id: reservationId },
+      data: {
+        salleId: parseInt(salleId, 10),
+        dateDebut,
+        dateFin
+      }
+    });
+    
+    res.json({ success: true, reservation: updatedReservation });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /historique
 // Affiche l'historique des réservations de l'utilisateur
 router.get("/historique", async (req, res, next) => {
@@ -666,19 +744,20 @@ router.get("/api/salles", async (req, res, next) => {
 // POST /api/reservations
 // Crée une réservation via AJAX
 router.post("/api/reservations", async (req, res, next) => {
+  console.log("Payload reçu :", req.body); // DEBUG
   if (!req.session.user) {
     return res.status(401).json({ error: "Non authentifié" });
   }
   try {
-    const { salleId, date, heure } = req.body;
-    if (!salleId || !date || !heure) {
+    const { salleId, dateDebut, dateFin } = req.body;
+    if (!salleId || !dateDebut || !dateFin) {
       return res.status(400).json({ error: "Données manquantes." });
     }
     const reservation = await createReservation({
       utilisateurId: req.session.user.id,
       salleId: parseInt(salleId, 10),
-      dateDebut: date + "T" + heure,
-      dateFin: date + "T" + heure  // ou calculer fin +1h par défaut
+      dateDebut,
+      dateFin
     });
     res.json({ reservation, message: "Réservation réussie" });
   } catch (err) {
@@ -1329,7 +1408,6 @@ router.get("/admin/historiqueAdmin", requireAuth, async (req, res) => {
     user: req.session.user
   });
 });
-export default router;
 
 import { sendContactMessage } from "./model/email.js"; // en haut si ce n'est pas déjà importé
 
@@ -1369,4 +1447,4 @@ router.post("/api/salles/recherche", async (req, res) => {
 });
 
 
-
+export default router;
