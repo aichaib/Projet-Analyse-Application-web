@@ -1,34 +1,34 @@
 <div class="page-admin-bg">
+  <!-- Sidebar stays within the Bootstrap container -->
   <div class="container">
     <div class="row g-4">
-
       <!-- Sidebar -->
       <aside class="col-lg-3">
         <div class="card sidebar-card">
           <div class="card-body">
             <nav class="nav nav-pills flex-column">
               <a class="nav-link" href="/salles/new"><i class="bi bi-plus-square me-2"></i>Ajouter une salle</a>
-              <a class="nav-link" href="/salles"><i class="bi bi-pencil-square me-2"></i>Modifier une salle</a>
-              <a class="nav-link" href="/salles"><i class="bi bi-building me-2"></i>Voir les salles</a>
-              <a class="nav-link" href="/admin/historique"><i class="bi bi-clock-history me-2"></i>Historique</a>
+              <a class="nav-link" href="/salles"><i class="bi bi-building me-2"></i>Voir les salles</a>              
+              <a class="nav-link" href="/list/equipement"><i class="bi bi-tools me-2"></i>Liste des équipements</a>
+              <a class="nav-link" href="/new/equipement"><i class="bi bi-plus-square me-2"></i>Ajouter un equipement</a>
+              <a class="nav-link" href="/admin/historiqueAdmin"><i class="bi bi-clock-history me-2"></i>Historique</a>
               <a class="nav-link" href="/admin/utilisateurs"><i class="bi bi-people me-2"></i>Gestion utilisateurs</a>
               <a class="nav-link" href="/parametres"><i class="bi bi-gear me-2"></i>Paramètres</a>
             </nav>
           </div>
         </div>
       </aside>
-
-      <!-- Main Content -->
-      <section class="col-lg-9">
-        <div class="card main-card text-center">
-          <div class="card-body">
-            <h2 class="dashboard-title">Bienvenue {{user.nom}} !</h2>
-            <a href="/salles/new" class="btn dashboard-btn-primary"><i class="bi bi-plus-lg me-2"></i>Ajouter une salle</a>
-            <a href="/salles" class="btn dashboard-btn-secondary"><i class="bi bi-eye me-2"></i>Voir toutes les salles</a>
-          </div>
-        </div>
-      </section>
-
     </div>
   </div>
+
+  <!-- Main content OUTSIDE Bootstrap's container -->
+  <section class="d-flex justify-content-center align-items-center" style="margin-left: 280px; min-height: calc(100vh - 80px); padding: 2rem;">
+    <div class="main-card text-center">
+      <div class="card-body">
+        <h2 class="dashboard-title">Bienvenue {{user.nom}} !</h2>
+        <a href="/salles/new" class="btn dashboard-btn-primary"><i class="bi bi-plus-lg me-2"></i>Ajouter une salle</a>
+        <a href="/salles" class="btn dashboard-btn-secondary"><i class="bi bi-eye me-2"></i>Voir toutes les salles</a>
+      </div>
+    </div>
+  </section>
 </div>
