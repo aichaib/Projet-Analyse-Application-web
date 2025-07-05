@@ -1,21 +1,19 @@
-<div class="main-content user-layout">
+<div class="content-area page-admin-bg">
+  <h1 class="dashboard-title">{{titre}}</h1>
 
-  <main class="content-area">
-    <div class="welcome-card">
-      <h1>{{titre}}</h1>
-      {{#if reservations.length}}
-        <div class="history-list">
-          {{#each reservations}}
-            <div class="history-item">
-              <div class="history-item-salle">Salle : {{this.salle.nom}}</div>
-              <div class="history-item-date">Du {{this.dateDebut}} au {{this.dateFin}}</div>
-            </div>
-          {{/each}}
-        </div>
-      {{else}}
-        <p>Vous n'avez aucune réservation passée.</p>
-      {{/if}}
+  {{#if reservations.length}}
+  <div class="history-grid-mini">
+    {{#each reservations}}
+    <div class="history-mini-card">
+      <div class="history-mini-header">{{this.salle.nom}}</div>
+      <div class="history-mini-info">
+        <p><strong>Date :</strong> {{this.dateUtilisationStr}}</p>
+        <p><strong>Heure :</strong> {{this.heureDebutStr}} – {{this.heureFinStr}}</p>
+      </div>
     </div>
-  </main>
-
-</div> 
+    {{/each}}
+  </div>
+  {{else}}
+  <p class="no-reservations">Vous n'avez aucune réservation passée.</p>
+  {{/if}}
+</div>

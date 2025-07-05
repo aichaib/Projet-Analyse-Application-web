@@ -147,25 +147,42 @@ export const getSalles = async () => {
  */
 export async function getHistoriqueReservations(utilisateurId) {
   try {
-    return await prisma.utilisationSalle.findMany({
+    const historique = await prisma.utilisationSalle.findMany({
       where: {
         utilisateurId: utilisateurId,
-        dateFin: {
-          lt: new Date(), // lt = Less Than (inférieur à la date actuelle)
+        dateUtilisation: {
+          lt: new Date(), // Réservations passées
         },
       },
       include: {
-        salle: true, // Inclure les détails de la salle
+        salle: true, // Inclure la salle
       },
       orderBy: {
-        dateDebut: 'desc', // Les plus récentes en premier
+        dateUtilisation: 'desc',
       },
     });
+
+    // Formater les heures début et fin
+    return historique.map(r => {
+      const heureDebut = new Date(r.heureUtilisation);
+      const heureFin = new Date(heureDebut.getTime() + 3 * 60 * 60 * 1000); // +3h
+
+      const formatHeure = (date) =>
+        `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+
+      return {
+        ...r,
+        dateUtilisationStr: new Date(r.dateUtilisation).toLocaleDateString('fr-FR'),
+        heureDebutStr: formatHeure(heureDebut),
+        heureFinStr: formatHeure(heureFin),
+      };
+    });
   } catch (err) {
-    console.error("Erreur lors de la récupération de l'historique:", err);
+    console.error("Erreur historique:", err);
     throw err;
   }
 }
+
 
 /**
  * Récupère toutes les réservations actives et futures d'un utilisateur.
@@ -193,3 +210,57 @@ export async function getReservationsByUserId(utilisateurId) {
     throw err;
   }
 }
+
+/**
+ * Met à jour une réservation
+ * @param {number} reservationId
+ * @param {number} utilisateurId
+ * @param {number} salleId
+ * @param {Date} dateUtilisation
+ * @param {Date} heureUtilisation
+ * @returns {Promise<{reservation: UtilisationSalle, conflict: boolean}>}
+ */
+export async function updateReservation(reservationId, utilisateurId, salleId, dateUtilisation, heureUtilisation) {
+  // 🔥 Vérifier les conflits
+  const heureFin = new Date(heureUtilisation.getTime() + 3 * 60 * 60 * 1000);
+
+  const chevauchement = await prisma.utilisationSalle.findFirst({
+    where: {
+      id: { not: reservationId }, // exclure la réservation en cours
+      salleId,
+      dateUtilisation,
+      OR: [
+        {
+          heureUtilisation: {
+            lt: heureFin,
+            gt: heureUtilisation
+          }
+        },
+        {
+          heureUtilisation: {
+            gte: heureUtilisation,
+            lt: heureFin
+          }
+        }
+      ]
+    }
+  });
+
+  if (chevauchement) {
+    return { conflict: true, reservation: null };
+  }
+
+  // ✅ Mise à jour
+  const reservation = await prisma.utilisationSalle.update({
+    where: { id: reservationId },
+    data: {
+      salle: { connect: { id: salleId } },
+      dateUtilisation,
+      heureUtilisation,
+      dateCreation: new Date() // mise à jour timestamp
+    }
+  });
+
+  return { conflict: false, reservation };
+}
+
