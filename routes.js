@@ -27,7 +27,7 @@ import {
 import {
   getSalles, listReservations, createReservation, cancelReservation,
   getHistoriqueReservations, getReservationsByUserId,
-  getSallesDispoParCritere, getCapacitesDisponibles
+  getSallesDispoParCritere, getCapacitesDisponibles, updateReservation
 } from "./model/utilisation_salle.js";
 
 import {
@@ -384,6 +384,76 @@ router.delete("/api/salles/:id", requireAuth, async (req, res) => {
 });
 
 // ─── RÉSERVATIONS ───────────────────────────────────────────────────────
+router.post("/api/reservations", async (req, res, next) => {
+  if (!req.session.user) return res.status(401).json({ error: "Non authentifié" });
+
+  try {
+    const { salleId, date, heure } = req.body;
+    if (!salleId || !date || !heure) {
+      return res.status(400).json({ error: "Données manquantes." });
+    }
+
+    // Calculer la plage horaire demandée (par défaut 3h)
+    const dateDebut = new Date(`${date}T${heure}:00`);
+    const dateFin = new Date(dateDebut.getTime() + 3 * 60 * 60 * 1000); // +3h
+    const [year, month, day] = date.split("-"); // ex: "2025-07-18"
+    const localDate = new Date(Number(year), Number(month) - 1, Number(day));
+
+
+    // Vérifier les conflits (chevauchement)
+    const conflits = await prisma.utilisationSalle.findMany({
+      where: {
+        salleId: parseInt(salleId, 10),
+        dateUtilisation: localDate,
+
+        // Chevauchement horaire
+        OR: [
+          {
+            heureUtilisation: {
+              lte: dateDebut
+            },
+            // début <= heure de début demandée < fin existante
+            heureUtilisation: {
+              lt: dateFin,
+              gt: dateDebut
+            }
+          },
+          {
+            heureUtilisation: {
+              lt: dateFin
+            },
+            // début existant < fin demandée <= fin existante
+            heureUtilisation: {
+              lte: dateFin,
+              gte: dateDebut
+            }
+          }
+        ]
+      }
+    });
+
+    if (conflits.length > 0) {
+      return res.status(409).json({ error: "La salle est déjà réservée à cette heure." });
+    }
+
+    // Pas de conflit : créer la réservation
+    const reservation = await createReservation({
+      utilisateurId: req.session.user.id,
+      salleId: parseInt(salleId, 10),
+      dateUtilisation: localDate,
+      heureUtilisation: `${date}T${heure}:00`
+    });
+
+    res.json({ reservation, message: "Réservation réussie" });
+  } catch (err) {
+    console.error("Erreur création réservation:", err);
+    next(err);
+  }
+});
+
+
+
+
 router.get("/reservations", async (req, res, next) => {
   console.log("Session utilisateur:", req.session.user);
   if (!req.session.user) {
@@ -472,6 +542,7 @@ router.delete("/reservations/:id", async (req, res, next) => {
   }
 });
 
+// ──────────────── MODIFIER UNE RÉSERVATION ────────────────
 router.get("/reservations/:id/edit", async (req, res, next) => {
   if (!req.session.user) {
     return res.redirect("/user/login");
@@ -508,60 +579,74 @@ router.put("/reservations/:id", async (req, res, next) => {
   if (!req.session.user) {
     return res.status(401).json({ error: "Non authentifié." });
   }
+
   try {
     const reservationId = parseInt(req.params.id, 10);
-    const { salleId, dateDebut, dateFin } = req.body;
+    const { salleId, dateUtilisation, heureUtilisation } = req.body;
 
-    if (!salleId || !dateDebut || !dateFin) {
+    if (!salleId || !dateUtilisation || !heureUtilisation) {
       return res.status(400).json({ error: "Données manquantes." });
     }
 
-    const existingReservation = await prisma.utilisationSalle.findFirst({
-      where: {
-        id: reservationId,
-        utilisateurId: req.session.user.id
-      }
-    });
+    // 🟢 Reconstruire la date/heure proprement
+    const [year, month, day] = dateUtilisation.split("-");
+    const [hour, minute] = heureUtilisation.split(":");
 
-    if (!existingReservation) {
-      return res.status(404).json({ error: "Réservation non trouvée." });
+    const fullDateTime = new Date(
+      Number(year),
+      Number(month) - 1, // JS: mois 0-indexé
+      Number(day),
+      Number(hour),
+      Number(minute),
+      0, 0
+    );
+    if (isNaN(fullDateTime.getTime())) {
+      return res.status(400).json({ error: "Date ou heure invalide." });
+    }
+    const dateUtilisationLocal = new Date(
+      Number(year),
+      Number(month) - 1, // mois JS = 0-indexé
+      Number(day),
+      0, 0, 0, 0
+    );
+
+    // ✅ Appeler la fonction métier
+    const result = await updateReservation(
+      reservationId,
+      req.session.user.id,
+      parseInt(salleId, 10),
+      dateUtilisationLocal, // juste le jour
+      fullDateTime // heure exacte
+    );
+
+    if (result.conflict) {
+      return res.status(409).json({ error: "La salle est déjà réservée à cette heure." });
     }
 
-    const updatedReservation = await prisma.utilisationSalle.update({
-      where: { id: reservationId },
-      data: {
-        salleId: parseInt(salleId, 10),
-        dateDebut,
-        dateFin
-      }
-    });
-
-    res.json({ success: true, reservation: updatedReservation });
+    res.json({ success: true, reservation: result.reservation });
   } catch (err) {
+    console.error("Erreur modification réservation :", err);
     next(err);
   }
 });
 
+// ──────────────── HISTORIQUE DES RÉSERVATIONS ────────────────
 router.get("/historique", async (req, res, next) => {
   if (!req.session.user) {
     return res.redirect("/user/login");
   }
 
   try {
-    const historique = await getHistoriqueReservations(req.session.user.id);
-    const reservationsFormattees = historique.map(resa => ({
-      ...resa,
-      dateDebut: new Date(resa.dateDebut).toLocaleString('fr-FR'),
-      dateFin: new Date(resa.dateFin).toLocaleString('fr-FR')
-    }));
+    const reservations = await getHistoriqueReservations(req.session.user.id);
 
     res.render("historique", {
       titre: "Historique des réservations",
       styles: ["/css/style.css", "/css/historique.css"],
-      reservations: reservationsFormattees,
+      reservations,
       user: req.session.user
     });
   } catch (err) {
+    console.error("Erreur historique :", err);
     next(err);
   }
 });
@@ -593,37 +678,6 @@ router.post("/api/salles/recherche", async (req, res) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
-
-router.post("/api/reservations", async (req, res, next) => {
-  console.log(" Payload reçu :", req.body);
-  if (!req.session.user) {
-    return res.status(401).json({ error: "Non authentifié" });
-  }
-
-  try {
-    const { salleId, date, heure } = req.body;
-    if (!salleId || !date || !heure) {
-      return res.status(400).json({ error: "Données manquantes." });
-    }
-
-    const dateUtilisation = `${date}T00:00:00`;
-    const heureUtilisation = `${date}T${heure}:00`;
-
-    const reservation = await createReservation({
-      utilisateurId: req.session.user.id,
-      salleId: parseInt(salleId, 10),
-      dateUtilisation,
-      heureUtilisation
-    });
-
-    console.log(" Réservation créée :", reservation);
-    res.json({ reservation, message: "Réservation réussie" });
-  } catch (err) {
-    console.error(" Erreur création réservation :", err);
-    next(err);
-  }
-});
-
 // ─── GESTION UTILISATEURS (ADMIN) ───────────────────────────────────────
 router.get("/admin/utilisateurs", requireAuth, async (req, res, next) => {
   try {

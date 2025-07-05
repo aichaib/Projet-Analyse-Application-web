@@ -1,39 +1,39 @@
 // public/js/calendar.js
 
 // Navigation entre les mois
-document.addEventListener('DOMContentLoaded', function() {
-    const prevMonthBtn = document.getElementById('prevMonth');
-    const nextMonthBtn = document.getElementById('nextMonth');
-    const calendarHeader = document.querySelector('.calendar-header');
-    
-    if (prevMonthBtn && nextMonthBtn && calendarHeader) {
-        const currentMonth = parseInt(calendarHeader.dataset.month);
-        const currentYear = parseInt(calendarHeader.dataset.year);
-        
-        prevMonthBtn.addEventListener('click', () => {
-            let newMonth = currentMonth - 1;
-            let newYear = currentYear;
-            
-            if (newMonth < 0) {
-                newMonth = 11;
-                newYear = currentYear - 1;
-            }
-            
-            window.location.href = `/reservations?month=${newMonth}&year=${newYear}`;
-        });
-        
-        nextMonthBtn.addEventListener('click', () => {
-            let newMonth = currentMonth + 1;
-            let newYear = currentYear;
-            
-            if (newMonth > 11) {
-                newMonth = 0;
-                newYear = currentYear + 1;
-            }
-            
-            window.location.href = `/reservations?month=${newMonth}&year=${newYear}`;
-        });
-    }
+document.addEventListener('DOMContentLoaded', function () {
+  const prevMonthBtn = document.getElementById('prevMonth');
+  const nextMonthBtn = document.getElementById('nextMonth');
+  const calendarHeader = document.querySelector('.calendar-header');
+
+  if (prevMonthBtn && nextMonthBtn && calendarHeader) {
+    const currentMonth = parseInt(calendarHeader.dataset.month);
+    const currentYear = parseInt(calendarHeader.dataset.year);
+
+    prevMonthBtn.addEventListener('click', () => {
+      let newMonth = currentMonth - 1;
+      let newYear = currentYear;
+
+      if (newMonth < 0) {
+        newMonth = 11;
+        newYear = currentYear - 1;
+      }
+
+      window.location.href = `/reservations?month=${newMonth}&year=${newYear}`;
+    });
+
+    nextMonthBtn.addEventListener('click', () => {
+      let newMonth = currentMonth + 1;
+      let newYear = currentYear;
+
+      if (newMonth > 11) {
+        newMonth = 0;
+        newYear = currentYear + 1;
+      }
+
+      window.location.href = `/reservations?month=${newMonth}&year=${newYear}`;
+    });
+  }
 });
 
 // Helpers pour le modal
@@ -47,7 +47,7 @@ function closeCalendarModal() {
   document.getElementById('calendar-modal').style.display = 'none';
 }
 document.getElementById('calendar-modal-close').onclick = closeCalendarModal;
-window.addEventListener('keydown', function(e) {
+window.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') closeCalendarModal();
 });
 
@@ -62,7 +62,7 @@ async function supprimerReservation(reservationId) {
     </div>
   `);
   document.getElementById('modal-suppr-cancel').onclick = closeCalendarModal;
-  document.getElementById('modal-suppr-confirm').onclick = async function() {
+  document.getElementById('modal-suppr-confirm').onclick = async function () {
     try {
       const response = await fetch(`/reservations/${reservationId}`, {
         method: 'DELETE',
@@ -113,17 +113,18 @@ async function modifierReservation(reservationId) {
     </form>
   `);
   document.getElementById('modal-edit-cancel').onclick = closeCalendarModal;
-  document.getElementById('calendar-modal-form').onsubmit = async function(e) {
+  document.getElementById('calendar-modal-form').onsubmit = async function (e) {
     e.preventDefault();
     const date = document.getElementById('modal-date').value;
     const heure = document.getElementById('modal-heure').value;
     const dateTime = new Date(`${date}T${heure}`);
     const dateTimeFin = new Date(dateTime.getTime() + 3 * 60 * 60 * 1000); // +3h
     const payload = {
-      salleId: event.dataset.salleId || 1, // fallback
-      dateDebut: dateTime.toISOString(),
-      dateFin: dateTimeFin.toISOString()
+      salleId: parseInt(event.dataset.salleId, 10) || 1,
+      dateUtilisation: date, // YYYY-MM-DD
+      heureUtilisation: heure// ISO format
     };
+
     try {
       const response = await fetch(`/reservations/${reservationId}`, {
         method: 'PUT',
@@ -148,16 +149,16 @@ window.modifierReservation = modifierReservation;
 window.supprimerReservation = supprimerReservation;
 
 // Attacher les événements sur les boutons du calendrier (CSP safe)
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.btn-modifier-event').forEach(btn => {
-    btn.addEventListener('click', function(e) {
+    btn.addEventListener('click', function (e) {
       e.stopPropagation();
       const id = btn.closest('.event').dataset.reservationId;
       modifierReservation(id);
     });
   });
   document.querySelectorAll('.btn-supprimer-event').forEach(btn => {
-    btn.addEventListener('click', function(e) {
+    btn.addEventListener('click', function (e) {
       e.stopPropagation();
       const id = btn.closest('.event').dataset.reservationId;
       supprimerReservation(id);
