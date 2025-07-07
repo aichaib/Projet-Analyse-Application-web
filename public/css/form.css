@@ -216,6 +216,17 @@
   }
 }
 
+.btn-retour {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  color: var(--light);
+  background: var(--primary);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
 @keyframes float-form {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }

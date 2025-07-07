@@ -141,6 +141,7 @@ body::before {
 .btn-ajouter {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: var(--light);
+  margin-top: 90px;
 }
 
 .btn-retour {

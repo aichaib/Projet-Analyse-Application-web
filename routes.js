@@ -920,7 +920,7 @@ router.get("/admin/historiqueAdmin", requireAuth, async (req, res, next) => {
     const historique = await getHistoriqueByAdminId(req.session.user.id);
     res.render("historiqueAdmin", {
       titre: "Historique de mes actions",
-      styles: ["/css/style.css", "/css/historiqueAdmin.css"],
+      styles: ["/css/style.css", "/css/historique.css"],
       historique,
       user: req.session.user
     });
