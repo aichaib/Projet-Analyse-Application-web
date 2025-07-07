@@ -218,6 +218,25 @@ router.post("/admin/inscription/verify", async (req, res) => {
   return res.json({ redirect: "/admin/login" });
 });
 
+router.post("/admin/login", async (req, res, next) => {
+  const { email, motDePasse } = req.body;
+  if (!isEmailValid(email) || !isPasswordValid(motDePasse)) {
+    return res.status(400).json({ error: "Email ou mot de passe invalide." });
+  }
+ 
+  passport.authenticate("local", async (err, user, info) => {
+    if (!user?.isAdmin) return res.status(401).json({ error: "Accès refusé." });
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    await createCodeForUser(user.id, user.email, code, expiresAt);
+    await sendVerificationCode(user.email, code);
+    req.session.pendingAdminEmail = user.email;
+    return res.json({ admin2FA: true });
+  })(req, res, next);
+});
+
+
+
 router.get("/admin/login", (req, res) => {
   res.render("adminLogin", {
     titre: "Connexion Administrateur",
@@ -226,6 +245,27 @@ router.get("/admin/login", (req, res) => {
   });
 });
 
+router.post("/admin/verify-code", async (req, res) => {
+  const { code } = req.body;
+  const email = req.session.pendingAdminEmail;
+  const entry = await getLatestCodeByEmail(email);
+  if (!entry || entry.expiresAt < new Date()) return res.status(410).json({ error: "Code expiré." });
+ 
+  const valid = await bcrypt.compare(code.trim(), entry.code);
+  if (!valid) return res.status(401).json({ error: "Code invalide." });
+ 
+  const user = await getUserByEmail(email);
+  await deleteCode(entry.id);
+  req.session.user = {
+    id: user.id,
+    email: user.email,
+    prenom: user.prenom,
+    nom: user.nom,
+    adminAuth: true
+  };
+  delete req.session.pendingAdminEmail;
+  return res.json({ redirect: "/accueil/admin" });
+});
 router.get("/admin/code", (req, res) => {
   if (!req.session.pendingAdminEmail) {
     return res.redirect("/admin/login");
@@ -250,6 +290,47 @@ router.get("/accueil/admin", requireAuth, (req, res) => {
 });
 
 // ─── GESTION SALLES ─────────────────────────────────────────────────────
+// Crée une nouvelle salle
+router.post("/salles", requireAuth, async (req, res, next) => {
+  try {
+    const { nom, capacite, emplacement, equipementId } = req.body;
+    console.log("Données reçues :", req.body);
+ 
+    // Vérifie si une salle existe déjà
+    const existing = await findSalleByNom(nom);
+ 
+    if (existing) {
+      return res.status(409).json({ error: "Le nom de salle existe déjà." });
+    }
+ 
+    await createSalle({
+      nom,
+      capacite: parseInt(capacite),
+      emplacement,
+      equipementId: parseInt(equipementId)
+    });
+ 
+    await logAdminAction(req.session.user.id, "Création salle", nom);
+ 
+    return res.redirect("/salles");
+  } catch (err) {
+    console.error("ERREUR serveur à POST /salles:", err);
+    if (err.code === "P2002") {
+      return res.status(409).json({ error: "Le nom de salle est déjà utilisé." });
+    }
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+router.get("/salles/new", requireAuth, async (req, res, next) => {
+  const equipements = await listEquipements();
+  res.render("salles/newSalle", {
+    titre: "Nouvelle salle",
+    styles: ["/css/style.css", "/css/styleCreationSalle.css"],
+    scripts: ["model/gestion_salle.js"],
+    equipements
+  });
+});
 router.get("/salles", requireAuth, async (req, res, next) => {
   try {
     const salles = await listSalles();
