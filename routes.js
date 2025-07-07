@@ -223,7 +223,7 @@ router.post("/admin/login", async (req, res, next) => {
   if (!isEmailValid(email) || !isPasswordValid(motDePasse)) {
     return res.status(400).json({ error: "Email ou mot de passe invalide." });
   }
- 
+
   passport.authenticate("local", async (err, user, info) => {
     if (!user?.isAdmin) return res.status(401).json({ error: "Accès refusé." });
     const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -250,10 +250,10 @@ router.post("/admin/verify-code", async (req, res) => {
   const email = req.session.pendingAdminEmail;
   const entry = await getLatestCodeByEmail(email);
   if (!entry || entry.expiresAt < new Date()) return res.status(410).json({ error: "Code expiré." });
- 
+
   const valid = await bcrypt.compare(code.trim(), entry.code);
   if (!valid) return res.status(401).json({ error: "Code invalide." });
- 
+
   const user = await getUserByEmail(email);
   await deleteCode(entry.id);
   req.session.user = {
@@ -295,23 +295,23 @@ router.post("/salles", requireAuth, async (req, res, next) => {
   try {
     const { nom, capacite, emplacement, equipementId } = req.body;
     console.log("Données reçues :", req.body);
- 
+
     // Vérifie si une salle existe déjà
     const existing = await findSalleByNom(nom);
- 
+
     if (existing) {
       return res.status(409).json({ error: "Le nom de salle existe déjà." });
     }
- 
+
     await createSalle({
       nom,
       capacite: parseInt(capacite),
       emplacement,
       equipementId: parseInt(equipementId)
     });
- 
+
     await logAdminAction(req.session.user.id, "Création salle", nom);
- 
+
     return res.redirect("/salles");
   } catch (err) {
     console.error("ERREUR serveur à POST /salles:", err);
@@ -323,13 +323,17 @@ router.post("/salles", requireAuth, async (req, res, next) => {
 });
 
 router.get("/salles/new", requireAuth, async (req, res, next) => {
-  const equipements = await listEquipements();
-  res.render("salles/newSalle", {
-    titre: "Nouvelle salle",
-    styles: ["/css/style.css", "/css/styleCreationSalle.css"],
-    scripts: ["model/gestion_salle.js"],
-    equipements
-  });
+  try {
+    const equipements = await import("./model/equipement.js").then(m => m.listEquipements());
+    res.render("salles/newSalle", {
+      titre: "Nouvelle salle",
+      styles: ["/css/style.css", "/css/styleCreationSalle.css"],
+      scripts: ["model/gestion_salle.js"],
+      equipements
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 router.get("/salles", requireAuth, async (req, res, next) => {
   try {
@@ -377,42 +381,54 @@ router.post("/salles", requireAuth, async (req, res, next) => {
 router.get("/salles/:id/edit", requireAuth, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
-    const salle = await findSalleById(id);
-    if (!salle) {
-      return res.status(404).send("Salle non trouvée");
-    }
-
+    const salle = await findSalleById(id); // contient salle.equipements[]
     const equipements = await listEquipements();
-    await logAdminAction(req.session.user.id, "Accès à l'édition d'une salle", `Salle ID: ${id}`);
+
+    // Marquer l’équipement déjà associé
+    const equipementAssocie = salle.equipements[0]?.id; // premier équipement
+
+    const equipementsAvecSelected = equipements.map(e => ({
+      ...e,
+      selected: e.id === equipementAssocie
+    }));
 
     res.render("salles/edit", {
       titre: "Modifier la salle",
       styles: ["/css/style.css", "/css/styleEdit.css"],
       scripts: ["model/gestion_salle.js"],
       salle,
-      equipements
+      equipements: equipementsAvecSelected
     });
   } catch (err) {
     next(err);
   }
 });
 
-router.put("/salles/:id", requireAuth, async (req, res, next) => {
+
+router.put("/salles/:id", requireAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { nom, capacite, emplacement, equipementId } = req.body;
+
   try {
-    const id = parseInt(req.params.id, 10);
-    const { nom, capacite, emplacement, equipementId } = req.body;
+    const sallesAvecCeNom = await findSalleByNom(nom);
+    const autreSalle = sallesAvecCeNom.find(salle => salle.id !== id);
+    if (autreSalle) {
+      return res.status(409).json({ error: "Le nom de salle existe déjà." });
+    }
 
     await updateSalle(id, {
       nom,
-      capacite: parseInt(capacite, 10),
+      capacite: parseInt(capacite),
       emplacement,
       equipementId
     });
 
-    await logAdminAction(req.session.user.id, "Mise à jour d'une salle", `Salle ID: ${id}, Nom: ${nom}`);
-    res.json({ success: true });
+    await logAdminAction(req.session.user.id, "Mise à jour d'une salle", `Salle ID: ${id}`);
+    return res.json({ success: true });
+
   } catch (err) {
-    next(err);
+    console.error("Erreur serveur PUT /salles/:id :", err);
+    return res.status(500).json({ success: false, error: "Erreur serveur" });
   }
 });
 
