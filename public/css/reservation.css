@@ -214,6 +214,41 @@
   width: 100%;
 }
 
+
+/* Styles des lignes de salle (recherche) */
+.salle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  margin-bottom: 0.5rem;
+  background: #fff;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  font-size: 1.1rem;
+}
+.salle-row:hover {
+  background: #f0f6ff;
+  border-color: #0a2e61;
+}
+.salle-row.selected {
+  background: #e6f0ff;
+  border-color: #0a2e61;
+  box-shadow: 0 2px 8px rgba(10,46,97,0.08);
+}
+.salle-nom {
+  font-weight: bold;
+  color: #0a2e61;
+}
+.salle-capacite {
+  color: #555;
+  font-size: 1rem;
+}
+
+/* ── Responsive (mobile) ── */
+@media (max-width: 992px) {
 .titre-resultat::after {
   content: "";
   position: absolute;
@@ -245,6 +280,7 @@
 .grille-salles:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
 }
 
 @keyframes pulse {
