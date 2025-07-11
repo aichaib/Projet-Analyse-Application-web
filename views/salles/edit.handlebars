@@ -1,37 +1,41 @@
 <section class="formulaire-salle">
+
   <h1 class="title">Modifier la salle</h1>
-  <form id="formEditSalle" class="formulaire">
-  <div class="form-group">
-    <label for="nom">Nom :</label>
-    <input type="text" id="nom" name="nom" value="{{salle.nom}}" required>
-  </div>
 
-  <div class="form-group">
-    <label for="capacite">Capacité :</label>
-    <input type="number" id="capacite" name="capacite" value="{{salle.capacite}}" required>
-  </div>
+  <form action="/salles/modifier/{{salle.id}}" method="POST" class="formulaire" id="formEditSalle">
+    <input type="hidden" name="_method" value="PUT">
 
-  <div class="form-group">
-    <label for="equipement">Équipement :</label>
-    <select id="equipement" name="equipementId" multiple required>
-      {{#each equipements}}
-        <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>
-          {{this.nom}}
-        </option>
-      {{/each}}
-    </select>
-  </div>
+    <div class="form-group">
+      <label for="nom">Nom :</label>
+      <input type="text" id="nom" name="nom" value="{{salle.nom}}" required>
+    </div>
 
-  <div class="form-group">
-    <label for="emplacement">Emplacement :</label>
-    <input type="text" id="emplacement" name="emplacement" value="{{salle.emplacement}}" required>
-  </div>
+    <div class="form-group">
+      <label for="capacite">Capacité :</label>
+      <input type="number" id="capacite" name="capacite" value="{{salle.capacite}}" required>
+    </div>
 
-  <button type="submit" class="btn-envoyer" >Enregistrer</button>
-</form>
+    <div class="form-group">
+      <label for="equipement">Équipement :</label>
+      <select id="equipement" name="equipementId" multiple required>
+        {{#each equipements}}
+          <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>
+            {{this.nom}}
+          </option>
+        {{/each}}
+      </select>
+    </div>
 
+    <div class="form-group">
+      <label for="emplacement">Emplacement :</label>
+      <input type="text" id="emplacement" name="emplacement" value="{{salle.emplacement}}" required>
+    </div>
+
+    <button type="submit" class="btn-envoyer">Enregistrer</button>
+  </form>
 
   <div class="retour">
     <a href="/salles" class="btn-retour">Retour à la liste</a>
   </div>
+
 </section>

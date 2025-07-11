@@ -25,7 +25,11 @@
           <td>{{#if this.lastLogin}}{{this.lastLogin}}{{else}}Jamais{{/if}}</td>
           <td class="actions-cell">
             <a href="/admin/utilisateurs/{{this.id}}/edit" class="btn-modifier">Modifier</a>
-           <button class="btn-supprimer" data-id="{{this.id}}">Supprimer</button>
+            <form method="POST" action="/admin/utilisateurs/{{this.id}}/delete" style="display:inline"
+              onsubmit="return confirmDelete()">
+              <button type="submit" class="btn-supprimer">Supprimer</button>
+            </form>
+
 
           </td>
         </tr>
@@ -38,5 +42,4 @@
     <a href="/accueil/admin" class="btn-retour">← Retour</a>
   </div>
 </section>
-<script src="/js/utilisateurs.js"></script>
-
+<script src="/js/gestionUser.js"></script>
