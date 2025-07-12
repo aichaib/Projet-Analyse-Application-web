@@ -1,15 +1,18 @@
 :root {
-  --primary: #0066ff;
-  --primary-dark: #0047b3;
-  --secondary: #00ffcc;
+  --primary: #00aa00;
+  --primary-dark: #007700;
+  --primary-light: #e6ffe6;
+  --secondary: #00ff99;
   --dark: #121212;
   --light: #ffffff;
+  --gray: #f5f5f7;
   --glass: rgba(255, 255, 255, 0.1);
   --glass-border: rgba(255, 255, 255, 0.2);
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  --blur: blur(12px);
-  --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --blur: blur(10px);
+  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
+
 
 .formulaire-salle {
   max-width: 600px;
