@@ -17,7 +17,7 @@
 .page-user-bg {
   min-height: 100vh;
   background: var(--light);
-  padding: 80px 2rem 2rem;
+   padding: 120px 2rem 2rem;
   display: flex;
   justify-content: center;
   background-image:

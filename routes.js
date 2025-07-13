@@ -930,7 +930,8 @@ router.get("/parametres", (req, res) => {
     user: req.user,
     titre: "Paramètres",
     styles: ["/css/style.css", "/css/form.css"],
-    scripts: ["/js/userSettings.js"]
+    scripts: ["/js/userSettings.js"],
+    returnUrl: "/accueil/user"
   });
 });
 
@@ -939,7 +940,8 @@ router.get("/admin/parametres", requireAuth, (req, res) => {
     user: req.session.user,   // ← ça contient id, prenom, nom, email, adminAuth
     titre: "Paramètres Admin",
     styles: ["/css/style.css", "/css/form.css"],
-    scripts: ["/js/userSettings.js"]
+    scripts: ["/js/userSettings.js"],
+    returnUrl: "/accueil/admin"
   });
 });
 
