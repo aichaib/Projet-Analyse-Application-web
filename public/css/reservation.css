@@ -21,7 +21,8 @@
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
-  min-height: calc(100vh - 80px);
+  min-height: calc(100vh - 180px); /* Ajuste 180px selon la hauteur du header + footer */
+  padding-bottom: 220px; /* Hauteur du footer pour éviter le chevauchement */
   position: relative;
   overflow: hidden;
 }
@@ -36,6 +37,15 @@
   background: radial-gradient(circle at 20% 30%, rgba(0, 102, 255, 0.1) 0%, transparent 25%), radial-gradient(circle at 80% 70%, rgba(0, 255, 204, 0.1) 0%, transparent 25%);
   z-index: -1;
   animation: pulse 20s infinite alternate;
+}
+
+.reservation-page h2 {
+  color: #222;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
 }
 
 .reservation-container {
@@ -65,7 +75,7 @@
   background: var(--glass);
   backdrop-filter: var(--blur);
   -webkit-backdrop-filter: var(--blur);
-  color: var(--light);
+  color: #222 !important;
   padding: 0.75rem 1.25rem;
   border-radius: 50px;
   text-decoration: none;
@@ -99,6 +109,12 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   opacity: 0.8;
+}
+
+.field-group label,
+.field-group select,
+.field-group input {
+  color: #222 !important;
 }
 
 .field-group select,
@@ -206,7 +222,8 @@
 .titre-resultat {
   font-size: 1.8rem;
   font-weight: 700;
-  color: var(--light);
+  color: #222 !important;
+  margin-top: 90px;
   margin-bottom: 1rem;
   position: relative;
   display: inline-block;
@@ -245,6 +262,21 @@
 .salle-capacite {
   color: #555;
   font-size: 1rem;
+}
+
+.calendar-header,
+.calendar-header *,
+.calendar-day,
+.calendar-day *,
+.event-room,
+.event-time,
+.event-title,
+.event-description {
+  color: #222 !important;
+}
+
+.main-content {
+  min-height: calc(100vh - 180px); /* Ajuste 180px selon la hauteur du header + footer */
 }
 
 /* ── Responsive (mobile) ── */
