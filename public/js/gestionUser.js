@@ -1,81 +1,119 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
+// public/js/gestionUser.js
 
-const prisma = new PrismaClient();
+document.addEventListener("DOMContentLoaded", () => {
+  // ─── SUPPRESSION ────────────────────────────────────────────
+  document.querySelectorAll(".btn-supprimer").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      const id = btn.dataset.id;
+      const tr = btn.closest("tr");
 
-// liste tous les utilisateurs
-export async function listUsers() {
-  return prisma.utilisateur.findMany({
-    select: {
-      id: true,
-      prenom: true,
-      nom: true,
-      email: true,
-      isAdmin: true,
-      createdAt: true,
-      updatedAt: true
-    },
-    orderBy: { nom: "asc" }
+      // on supprime d'éventuelles anciennes bulles
+      document.querySelectorAll(".confirm-box").forEach(el => el.remove());
+
+      // création de la bulle
+      const box = document.createElement("div");
+      box.className = "confirm-box";
+      box.textContent = "Supprimer ?";
+
+      const yes = document.createElement("button");
+      yes.type = "button";
+      yes.className = "btn-yes";
+      yes.textContent = "Oui";
+
+      const no = document.createElement("button");
+      no.type = "button";
+      no.className = "btn-no";
+      no.textContent = "Non";
+
+      box.appendChild(yes);
+      box.appendChild(no);
+      document.body.appendChild(box);
+
+      // positionner la bulle sous le bouton
+      const rect = btn.getBoundingClientRect();
+      box.style.top = `${rect.bottom + window.scrollY + 5}px`;
+      box.style.left = `${rect.left + window.scrollX}px`;
+
+      // "Non" : on ferme simplement
+      no.addEventListener("click", () => box.remove());
+
+      // "Oui" : on lance la suppression
+      yes.addEventListener("click", async () => {
+        box.remove();
+        // feedback visuel
+        const oldText = btn.textContent;
+        btn.textContent = "Suppression…";
+        btn.disabled = true;
+
+        try {
+          const resp = await fetch(`/admin/utilisateurs/${id}`, {
+            method: "DELETE",
+            credentials: "include",
+            headers: { "Accept": "application/json" }
+          });
+          const data = await resp.json();
+
+          if (!resp.ok || !data.success) {
+            throw new Error(data.error || "Échec de la suppression");
+          }
+
+          // disparition de la ligne
+          tr.style.transition = "opacity 0.3s";
+          tr.style.opacity = 0;
+          setTimeout(() => tr.remove(), 300);
+
+        } catch (err) {
+          console.error(err);
+          alert("Erreur : " + err.message);
+        } finally {
+          btn.textContent = oldText;
+          btn.disabled = false;
+        }
+      });
+    });
   });
-}
 
-// trouve un utilisateur par id
-export async function getUserById(id) {
-  return prisma.utilisateur.findUnique({
-    where: { id: Number(id) }
-  });
-}
+  // ─── MODIFICATION (page /edit) ─────────────────────────────
+  const form = document.getElementById("edit-user-form");
+  if (form) {
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      const id = form.dataset.id;
+      const payload = {
+        prenom: form.prenom.value.trim(),
+        nom: form.nom.value.trim(),
+        email: form.email.value.trim(),
+        isAdmin: form.isAdmin.value === "true"
+      };
 
-// trouve un utilisateur par email
-export async function getUserByEmail(email) {
-  return prisma.utilisateur.findUnique({
-    where: { email }
-  });
-}
+      const btn = form.querySelector("button[type=submit]");
+      const old = btn.innerHTML;
+      btn.innerHTML = "Enregistrement…";
+      btn.disabled = true;
 
-// ajoute un nouvel utilisateur, mot de passe hashé
-export async function addUser({ prenom, nom, email, motDePasse, isAdmin = false }) {
-  const hashedPassword = await bcrypt.hash(motDePasse, 10);
-  return prisma.utilisateur.create({
-    data: {
-      prenom,
-      nom,
-      email,
-      motDePasse: hashedPassword,
-      isAdmin
-    }
-  });
-}
-
-// met à jour un utilisateur (sans changer mot de passe ici)
-export async function updateUser(id, data) {
-  // si motDePasse présent, le hasher
-  if (data.motDePasse) {
-    data.motDePasse = await bcrypt.hash(data.motDePasse, 10);
+      try {
+        const resp = await fetch(`/admin/utilisateurs/modifier/${id}`, {
+          method: "POST",   // ou "PUT" si vous modifiez la route
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.success) {
+          throw new Error(data.error || "Échec de la mise à jour");
+        }
+        alert("Utilisateur mis à jour !");
+      } catch (err) {
+        console.error(err);
+        alert("Erreur : " + err.message);
+      } finally {
+        btn.innerHTML = old;
+        btn.disabled = false;
+      }
+    });
   }
-  return prisma.utilisateur.update({
-    where: { id: Number(id) },
-    data
-  });
-}
-
-// met à jour la date de dernier login
-export async function updateLastLogin(id) {
-  return prisma.utilisateur.update({
-    where: { id: Number(id) },
-    data: { lastLoginAt: new Date() }
-  });
-}
-
-// supprime un utilisateur
-export async function deleteUser(id) {
-  return prisma.utilisateur.delete({
-    where: { id: Number(id) }
-  });
-}
-
-export async function confirmDelete() {
-   const confirmation = confirm("Voulez-vous vraiment supprimer cet utilisateur ?");
-      if (!confirmation) return;
-}
-
+});

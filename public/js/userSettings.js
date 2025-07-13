@@ -5,21 +5,26 @@ form.addEventListener('submit', async e => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(form));
 
-  const res = await fetch('/user/settings', {
+  // Choisissez l’URL en fonction de la page
+  const endpoint = window.location.pathname.startsWith("/admin")
+    ? "/admin/parametres"
+    : "/user/settings";
+
+  const res = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
+    credentials: 'include'
   });
 
+  const json = await res.json();
   if (res.ok) {
-    const json = await res.json();
-    status.textContent = json.message || 'Paramètres sauvegardés avec succès !';
-    status.classList.remove('text-danger');
+    status.textContent = json.message;
     status.classList.add('text-success');
+    status.classList.remove('text-danger');
   } else {
-    const json = await res.json();
-    status.textContent = 'Erreur : ' + (json.error || 'serveur');
-    status.classList.remove('text-success');
+    status.textContent = "Erreur : " + (json.error||json.message);
     status.classList.add('text-danger');
+    status.classList.remove('text-success');
   }
 });

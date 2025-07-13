@@ -44,11 +44,26 @@ export async function createUser({ prenom, nom, email, motDePasseHash }) {
 
 /** Met à jour un utilisateur par ID */
 export async function updateUser(id, { prenom, nom, email }) {
+  const dataToUpdate = {};
+  if (typeof prenom !== "undefined") dataToUpdate.prenom = prenom;
+  if (typeof nom !== "undefined") dataToUpdate.nom = nom;
+  if (typeof email !== "undefined") {
+    // on ne fait le contrôle de doublon QUE si on a un email
+    const exist = await prisma.utilisateur.findUnique({
+      where: { email }
+    });
+    if (exist && exist.id !== id) {
+      throw new Error("Cet email est déjà utilisé.");
+    }
+    dataToUpdate.email = email;
+  }
+
   return prisma.utilisateur.update({
     where: { id },
-    data: { prenom, nom, email }
+    data: dataToUpdate
   });
 }
+
 
 /** Met à jour la date du dernier login */
 export async function updateLastLogin(utilisateurId) {
@@ -61,6 +76,11 @@ export async function updateLastLogin(utilisateurId) {
 
 /** Supprime un utilisateur par ID */
 export async function deleteUser(id) {
+  // Supprime d'abord les codes de vérification liés à l'utilisateur
+  await prisma.verificationCode.deleteMany({ where: { utilisateurId: id } });
+  // Supprime ensuite les réservations de l'utilisateur
+  await prisma.utilisationSalle.deleteMany({ where: { utilisateurId: id } });
+  // Supprime l'utilisateur lui-même
   return prisma.utilisateur.delete({
     where: { id }
   });

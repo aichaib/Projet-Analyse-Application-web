@@ -22,15 +22,12 @@
           <td>{{this.email}}</td>
           <td>{{#if this.isAdmin}}Admin{{else}}Utilisateur{{/if}}</td>
           <td>{{this.createdAt}}</td>
-          <td>{{#if this.lastLogin}}{{this.lastLogin}}{{else}}Jamais{{/if}}</td>
+          <td>{{#if this.lastLogin}}{{this.lastLogin}}{{else}}En ligne{{/if}}</td>
           <td class="actions-cell">
             <a href="/admin/utilisateurs/{{this.id}}/edit" class="btn-modifier">Modifier</a>
-            <form method="POST" action="/admin/utilisateurs/{{this.id}}/delete" style="display:inline"
-              onsubmit="return confirmDelete()">
-              <button type="submit" class="btn-supprimer">Supprimer</button>
-            </form>
-
-
+            <button type="button" class="btn-supprimer" data-id="{{this.id}}">
+              Supprimer
+            </button>
           </td>
         </tr>
         {{/each}}
@@ -42,4 +39,3 @@
     <a href="/accueil/admin" class="btn-retour">← Retour</a>
   </div>
 </section>
-<script src="/js/gestionUser.js"></script>

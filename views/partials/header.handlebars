@@ -4,9 +4,15 @@
   </div>
   <div class="nav-wrapper">
     <nav class="header-nav">
-      <a href="/user/register">Inscription</a>
-      <a href="/user/login">Connexion</a>
-      <a href="/contact" class="btn-entete">Contactez-nous !</a>
+      {{#if user}}
+        <!-- Si connecté (user ou admin) -->
+        <a href="/deconnexion">Déconnexion</a>
+      {{else}}
+        <!-- Sinon -->
+        <a href="/user/register">Inscription</a>
+        <a href="/user/login">Connexion</a>
+      {{/if}}
+      <a href="/contact" class="btn-entete">Contactez-nous&nbsp;!</a>
     </nav>
   </div>
   <div class="header-right"></div>
