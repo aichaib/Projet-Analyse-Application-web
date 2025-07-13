@@ -43,7 +43,7 @@
 .title {
   text-align: center;
   margin-bottom: 30px;
-  color: var(--light);
+  color: var(--dark);
   font-size: 2rem;
   font-weight: 700;
   position: relative;
@@ -75,7 +75,7 @@
   display: block;
   margin-bottom: 12px;
   font-weight: 500;
-  color: var(--light);
+  color: var(--dark);
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -90,7 +90,7 @@
   border: 1px solid var(--glass-border);
   border-radius: 12px;
   font-size: 1rem;
-  color: var(--light);
+  color: var(--dark);
   transition: var(--transition);
   box-shadow: var(--shadow);
 }
@@ -114,7 +114,7 @@
 
 .btn-envoyer {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: var(--light);
+  color: var(--dark);
   padding: 16px;
   font-size: 1rem;
   font-weight: 600;
