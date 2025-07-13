@@ -757,37 +757,11 @@ router.get("/admin/utilisateurs", requireAuth, async (req, res, next) => {
     res.render("utilisateurs/listUtilisateurs", {
       titre: "Gestion des utilisateurs",
       styles: ["/css/style.css", "/css/styleListUtilisateurs.css"],
+      scripts: ["/js/gestionUser.js"],
       users
     });
   } catch (err) {
     next(err);
-  }
-});
-
-router.get("/admin/utilisateurs/new", (req, res) => {
-  res.render("utilisateurs/newUtilisateur", {
-    titre: "Ajouter un utilisateur",
-    styles: ["/css/style.css", "/css/form.css"],
-    scripts: ["/js/userGestion.js"]
-  });
-});
-
-// Handle new user creation
-router.post("/admin/utilisateurs/new", async (req, res) => {
-  const { prenom, nom, email, motDePasse } = req.body;
-  if (!prenom || !nom || !email || !motDePasse) {
-    return res.status(400).json({ error: "Tous les champs sont requis." });
-  }
-
-  try {
-    await addUser({ prenom, nom, email, motDePasse });
-    res.redirect("/admin/utilisateurs");
-  } catch (err) {
-    if (err.code === "P2002") {
-      return res.status(409).json({ error: "Cet e-mail est déjà utilisé." });
-    }
-    console.error("Erreur création utilisateur:", err);
-    res.status(500).json({ error: "Erreur serveur" });
   }
 });
 
@@ -813,55 +787,45 @@ router.get("/admin/utilisateurs/:id/edit", requireAuth, async (req, res, next) =
 });
 
 // Handle user update
-router.post("/admin/utilisateurs/modifier/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  const { prenom, nom, email } = req.body;
-  if (!prenom || !nom || !email) {
-    return res.status(400).json({ error: "Tous les champs sont requis." });
-  }
-
+router.post("/admin/utilisateurs/modifier/:id", requireAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { prenom, nom, email, isAdmin } = req.body;
   try {
-    await updateUser(id, { prenom, nom, email });
+    await updateUser(id, { prenom, nom, email, isAdmin: isAdmin === true });
+    // Si on reçoit du JSON, renvoyer JSON
+    if (req.is("application/json")) {
+      return res.json({ success: true, message: "Utilisateur mis à jour." });
+    }
+    // Sinon, rediriger classiquement
     res.redirect("/admin/utilisateurs");
   } catch (err) {
-    console.error("Erreur modification utilisateur:", err);
-    res.status(500).json({ error: "Erreur serveur" });
+    console.error(err);
+    if (req.is("application/json")) {
+      return res.status(500).json({ success: false, error: "Erreur serveur" });
+    }
+    res.status(500).send("Erreur serveur");
   }
 });
 
-
-
-
-// Delete user
-router.post("/admin/utilisateurs/:id/delete", requireAuth, async (req, res) => {
-  const { id } = req.params;
-  const userId = parseInt(id);
+router.delete("/admin/utilisateurs/:id", requireAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    return res.status(400).json({ success: false, error: "ID invalide" });
+  }
 
   try {
-    // supprimer les codes de vérification liés à l'utilisateur
-    await prisma.verificationCode.deleteMany({
-      where: { utilisateurId: userId },
-    });
-
-    // supprimer les réservations liées à l'utilisateur
-    await prisma.utilisationSalle.deleteMany({
-      where: { utilisateurId: userId },
-    });
-
-    // supprimer l'utilisateur
-    await prisma.utilisateur.delete({
-      where: { id: userId },
-    });
-
-    res.redirect("/admin/utilisateurs");
+    await deleteUser(id);
+    await logAdminAction(
+      req.session.user.id,
+      "Suppression utilisateur",
+      `ID: ${id}`
+    );
+    return res.json({ success: true });
   } catch (err) {
-    console.error("Erreur suppression utilisateur:", err);
-    res.status(500).send("Erreur lors de la suppression de l'utilisateur");
+    console.error("Erreur suppression utilisateur :", err);
+    return res.status(500).json({ success: false, error: "Erreur serveur" });
   }
 });
-
-
-
 
 
 // ─── GESTION ÉQUIPEMENTS ────────────────────────────────────────────────
@@ -922,37 +886,6 @@ router.get('/equipement/modifier/:id', async (req, res) => {
   }
 });
 
-router.post('/equipement/modifier/:id', async (req, res) => {
-  const id = parseInt(req.params.id);
-  console.log("Requête POST modification equipement", { id, body: req.body });
-  const nom = req.body.nom;
-  if (!nom || nom.trim() === "") {
-    const messageErreur = "Le nom de l'équipement est requis.";
-    if (req.headers['content-type'] === 'application/json') {
-      return res.status(400).json({ error: messageErreur });
-    } else {
-      return res.status(400).send(messageErreur);
-    }
-  }
-
-  try {
-    await updateEquipement(id, { nom: nom.trim() });
-
-    if (req.headers['content-type'] === 'application/json') {
-      return res.json({ success: true, message: "Équipement mis à jour." });
-    } else {
-      return res.redirect("/list/equipement");
-    }
-  } catch (error) {
-    console.error("Erreur modification equipement:", error);
-    if (req.headers['content-type'] === 'application/json') {
-      return res.status(500).json({ error: error.message });
-    } else {
-      return res.status(500).send("Erreur de mise à jour");
-    }
-  }
-});
-
 router.post('/equipement/:id/delete', async (req, res) => {
   const id = parseInt(req.params.id);
   try {
@@ -999,6 +932,27 @@ router.get("/parametres", (req, res) => {
     styles: ["/css/style.css", "/css/form.css"],
     scripts: ["/js/userSettings.js"]
   });
+});
+
+router.get("/admin/parametres", requireAuth, (req, res) => {
+  res.render("userSettings", {
+    user: req.session.user,   // ← ça contient id, prenom, nom, email, adminAuth
+    titre: "Paramètres Admin",
+    styles: ["/css/style.css", "/css/form.css"],
+    scripts: ["/js/userSettings.js"]
+  });
+});
+
+router.post("/admin/parametres", requireAuth, async (req, res) => {
+  const { prenom, nom, email } = req.body;
+  try {
+    await updateUser(req.session.user.id, { prenom, nom, email });
+    // on met à jour la session pour que la vue reflète le nouveau nom / email
+    Object.assign(req.session.user, { prenom, nom, email });
+    res.json({ success: true, message: "Paramètres admin mis à jour !" });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
 });
 
 router.post('/user/settings', async (req, res) => {
