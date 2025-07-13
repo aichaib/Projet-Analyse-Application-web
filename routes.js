@@ -896,6 +896,19 @@ router.post('/equipement/:id/delete', async (req, res) => {
   }
 });
 
+router.post("/equipement/modifier/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const { nom } = req.body;
+
+  try {
+    await updateEquipement(id, { nom }); // assumes you have this function
+    res.redirect("/list/equipement");
+  } catch (error) {
+    console.error("Erreur mise à jour équipement:", error);
+    res.status(500).send("Erreur serveur");
+  }
+});
+
 // ─── HISTORIQUES ────────────────────────────────────────────────────────
 router.get("/admin/historique", requireAuth, async (req, res, next) => {
   try {
