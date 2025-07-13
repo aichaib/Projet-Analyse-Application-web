@@ -14,7 +14,7 @@
 
     <div class="form-group">
       <label for="equipement">Équipement :</label>
-      <select id="equipement" multiple required>
+      <select id="equipement" name="equipementId" required>
         <option value="">-- Sélectionnez un équipement --</option>
         {{#each equipements}}
           <option value="{{this.id}}">{{this.nom}}</option>
