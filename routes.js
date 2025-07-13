@@ -292,58 +292,53 @@ router.get("/accueil/admin", requireAuth, (req, res) => {
 
 // ─── CREATE new salle ─────────────────────────────
 router.post("/salles", requireAuth, async (req, res, next) => {
-  try {
-    let { nom, capacite, emplacement, equipementId } = req.body;
+  console.log(" POST /salles appelé");
+  console.log("Session utilisateur :", req.session.user); // Vérifie si l'admin est toujours connecté
+  console.log("Corps reçu (req.body) :", req.body);       // Vérifie ce que fetch envoie
 
-  
-    if (!Array.isArray(equipementId)) {
-      equipementId = equipementId ? [equipementId] : [];
-    }
+  try {
+    const { nom, capacite, emplacement, equipementId } = req.body;
+    console.log("Données extraites :", { nom, capacite, emplacement, equipementId });
 
     const existing = await findSalleByNom(nom);
-    if (existing) {
-      return res.status(409).send("Le nom de salle existe déjà.");
+    if (existing.length > 0) {
+      console.warn("Salle déjà existante :", existing);
+      return res.status(409).json({ error: "Le nom de salle existe déjà." });
     }
 
- 
-    const newSalle = await prisma.salle.create({
-      data: {
-        nom,
-        capacite: parseInt(capacite),
-        emplacement,
-      }
+
+    const newSalle = await createSalle({
+      nom,
+      capacite,
+      emplacement,
+      equipementId
     });
 
-   
-    if (equipementId.length > 0) {
-      await prisma.salleEquipement.createMany({
-        data: equipementId.map(id => ({
-          salleId: newSalle.id,
-          equipementId: parseInt(id)
-        })),
-        skipDuplicates: true
-      });
-    }
+    console.log(" Salle créée :", newSalle);
 
     await logAdminAction(req.session.user.id, "Création salle", nom);
-    return res.redirect("/salles");
+
+    return res.json({ success: true, redirect: "/salles" });
 
   } catch (err) {
-    console.error("ERREUR POST /salles:", err);
+    console.error(" ERREUR POST /salles:", err);
     if (err.code === "P2002") {
-      return res.status(409).send("Le nom de salle est déjà utilisé.");
+      return res.status(409).json({ error: "Le nom de salle est déjà utilisé." });
     }
-    return res.status(500).send("Erreur serveur");
+    return res.status(500).json({ error: "Erreur serveur" });
   }
 });
+
+
+
 
 router.get("/salles/new", requireAuth, async (req, res, next) => {
   try {
     const equipements = await listEquipements();
-    res.render("salles/new", {
+    res.render("salles/newSalle", {
       titre: "Nouvelle salle",
       styles: ["/css/style.css", "/css/styleCreationSalle.css"],
-      scripts: ["model/gestion_salle.js"],
+      scripts: ["/js/salles.js"],
       equipements
     });
   } catch (err) {
@@ -385,7 +380,7 @@ router.get("/salles/:id/edit", requireAuth, async (req, res, next) => {
     res.render("salles/edit", {
       titre: "Modifier la salle",
       styles: ["/css/style.css", "/css/styleEdit.css"],
-      scripts: ["model/gestion_salle.js"],
+      scripts: ["/js/salles.js"],
       salle,
       equipements: equipementsAvecSelected
     });
@@ -395,88 +390,68 @@ router.get("/salles/:id/edit", requireAuth, async (req, res, next) => {
 });
 
 // ─── UPDATE salle ─────────────────────────────
-router.put("/salles/:id", requireAuth, async (req, res, next) => {
+// routes.js
+
+router.put("/salles/:id", requireAuth, async (req, res) => {
+  console.log(" PUT /salles/:id", req.params.id, "avec", req.body);
+
   try {
     const id = parseInt(req.params.id, 10);
-    let { nom, capacite, emplacement, equipementId } = req.body;
+    const { nom, capacite, emplacement, equipementId } = req.body;
 
-    if (!Array.isArray(equipementId)) {
-      equipementId = equipementId ? [equipementId] : [];
-    }
-
-    // Check for name conflicts
-    const sallesAvecCeNom = await findSalleByNom(nom);
-    const autreSalle = sallesAvecCeNom.find(s => s.id !== id);
-    if (autreSalle) {
-      return res.status(409).send("Le nom de salle existe déjà.");
-    }
-
-    // Update salle base data
-    await prisma.salle.update({
-      where: { id },
-      data: {
-        nom,
-        capacite: parseInt(capacite),
-        emplacement
+    // 1) Si on modifie le nom, vérifier qu'il n'existe pas sur une autre salle
+    if (typeof nom !== "undefined") {
+      const doublons = await findSalleByNom(nom);
+      const autre = doublons.find(s => s.id !== id);
+      if (autre) {
+        console.warn("Nom en conflit :", nom, autre);
+        return res.status(409).json({ error: "Le nom de salle existe déjà." });
       }
-    });
-
-    // Remove old equipements
-    await prisma.salleEquipement.deleteMany({
-      where: { salleId: id }
-    });
-
-    // Add new equipements
-    if (equipementId.length > 0) {
-      await prisma.salleEquipement.createMany({
-        data: equipementId.map(eid => ({
-          salleId: id,
-          equipementId: parseInt(eid)
-        })),
-        skipDuplicates: true
-      });
     }
 
-    await logAdminAction(req.session.user.id, "Mise à jour d'une salle", `Salle ID: ${id}`);
+    // 2) Appel métier
+    const salleMiseAJour = await updateSalle(id, {
+      nom,
+      capacite,
+      emplacement,
+      equipementId
+    });
+    console.log("Salle après MAJ :", salleMiseAJour);
 
-    // redirect back to salle list or edit page
-    return res.redirect("/salles");
+    // 3) Historique & réponse
+    await logAdminAction(req.session.user.id, "Mise à jour salle", `ID ${id}`);
+    return res.json({ success: true, redirect: "/salles", salle: salleMiseAJour });
 
   } catch (err) {
-    console.error("Erreur PUT /salles/:id :", err);
-    return res.status(500).send("Erreur serveur");
+    console.error(" Erreur PUT /salles/:id :", err);
+    return res.status(500).json({ error: "Erreur serveur" });
   }
 });
+
 
 // ─── DELETE salle ─────────────────────────────
 // Assuming your form or frontend calls DELETE /salles/:id
 router.delete("/salles/:id", requireAuth, async (req, res) => {
   const id = parseInt(req.params.id, 10);
-  if (!id) {
-    return res.status(400).send("ID invalide");
+  if (isNaN(id)) {
+    return res.status(400).json({ success: false, error: "ID invalide" });
   }
 
   try {
-    // Check salle exists
-    const salle = await prisma.salle.findUnique({ where: { id } });
-    if (!salle) {
-      return res.status(404).send("Salle non trouvée");
+    // vérifier que la salle existe
+    const existing = await prisma.salle.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Salle non trouvée" });
     }
 
-    // Delete dependent records & salle inside a transaction
-    await prisma.$transaction([
-      prisma.salleEquipement.deleteMany({ where: { salleId: id } }),
-      prisma.utilisationSalle.deleteMany({ where: { salleId: id } }),
-      prisma.salle.delete({ where: { id } }),
-    ]);
+    // suppression via la fonction métier
+    await deleteSalle(id);
 
-    await logAdminAction(req.session.user.id, "Suppression salle", `ID: ${id}`);
-
-    return res.redirect("/salles");
-
+    await logAdminAction(req.session.user.id, "Suppression salle", `ID ${id}`);
+    return res.json({ success: true });
   } catch (err) {
-    console.error("Erreur suppression salle:", err);
-    return res.status(500).send("Erreur serveur");
+    console.error("Erreur suppression salle API :", err);
+    return res.status(500).json({ success: false, error: "Erreur serveur" });
   }
 });
 

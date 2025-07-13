@@ -29,11 +29,9 @@
           <td>{{this.emplacement}}</td>
           <td>
             <a href="/salles/{{this.id}}/edit" class="btn-modifier">Modifier</a>
-            <form action="/salles/{{this.id}}" method="POST" class="form-supprimer"
-              onsubmit="return confirm('Confirmer la suppression ?');">
-              <input type="hidden" name="_method" value="DELETE">
-              <button type="submit" class="btn-supprimer-salle" data-id="{{this.id}}">Supprimer</button>
-            </form>
+            <button type="button" class="btn-supprimer-salle" data-id="{{this.id}}">
+              Supprimer
+            </button>
           </td>
         </tr>
         {{/each}}
@@ -41,7 +39,7 @@
     </table>
   </div>
 
-  
+
   <div class="retour">
     <a href="/accueil/admin" class="btn-retour">← Retour</a>
   </div>
