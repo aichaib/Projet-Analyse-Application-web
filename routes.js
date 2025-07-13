@@ -901,7 +901,7 @@ router.post("/equipement/modifier/:id", async (req, res) => {
   const { nom } = req.body;
 
   try {
-    await updateEquipement(id, { nom }); // assumes you have this function
+    await updateEquipement(id, { nom });
     res.redirect("/list/equipement");
   } catch (error) {
     console.error("Erreur mise à jour équipement:", error);
