@@ -193,7 +193,7 @@
 .calendar-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 110px;
+  grid-auto-rows: 140px;
   gap: 1.2rem;
 }
 
@@ -208,6 +208,8 @@
   padding: 0.7rem;
   overflow: hidden;     /* ← empêche tout ce qui dépasse de s’afficher */
   position: relative;
+  margin-bottom: auto;
+  overflow: hidden;
   transition: background 0.2s, box-shadow 0.2s;
   box-shadow: 0 2px 8px rgba(10,46,97,0.04);
 }
@@ -259,6 +261,11 @@
   padding: 0.3rem 0.1rem;
   border-radius: 6px;
   font-size: 0.75rem;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  text-align: center;
   color: var(--light);
   transition: var(--transition);
   box-sizing: border-box;
@@ -270,14 +277,22 @@
 }
 
 .event-room {
+  margin-top: 0;
   font-weight: 600;
   color: var(--secondary);
 }
 
 .event-time {
-
   font-size: .7rem;
   color: #555;
+}
+.event-room,
+.event-time {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  display: block;
 }
 
 /* Styles des boutons d'action dans les événements */
@@ -450,6 +465,7 @@
   
   .calendar-day {
     padding: 0.5rem;
+    overflow: hidden;
   }
   
   .event {
