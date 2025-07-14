@@ -206,6 +206,7 @@
   border: none;
   border-radius: 18px;
   padding: 0.7rem;
+  overflow: hidden;     /* ← empêche tout ce qui dépasse de s’afficher */
   position: relative;
   margin-bottom: auto;
   overflow: hidden;
@@ -245,7 +246,9 @@
 
 .calendar-day.reserved {
   background: rgba(0, 102, 255, 0.05);
-  border-left: 4px solid var(--primary);
+   box-shadow: inset 4px 0 0 var(--primary);
+   position: relative;
+   overflow: visible;
 }
 
 .event {
