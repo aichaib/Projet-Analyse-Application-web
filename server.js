@@ -1,6 +1,12 @@
 //Doit etre en debut de fichier pour charger les variables d'environnement
 import "dotenv/config";
 
+import apiRoutes from "./routes.api.js";
+
+app.use(express.json()); // pour analyser les JSON
+app.use("/api", apiRoutes);
+
+
 //importer les routes
 import routerExterne from "./routes.js";
 
