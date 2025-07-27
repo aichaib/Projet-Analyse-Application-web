@@ -115,10 +115,10 @@ if (process.env.NODE_ENV === "development") {
     https.createServer(credentials, app).listen(process.env.PORT, "0.0.0.0");
     console.info("Serveur démarré avec succès: ");
     console.log("https://localhost:" + process.env.PORT);
-    console.log(`http://0.0.0.0:${PORT}`);
+  
 } else {
     app.listen(process.env.PORT, "0.0.0.0");
     console.info("Serveur démarré avec succès: ");
     console.info("http://localhost:" + process.env.PORT);
-    console.log(`http://0.0.0.0:${PORT}`);
+  
 }
