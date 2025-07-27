@@ -1,11 +1,12 @@
 //Doit etre en debut de fichier pour charger les variables d'environnement
 import "dotenv/config";
 
-//importer les routes
-import routerExterne from "./routes.js";
 
 import https from "node:https";
 import { readFile } from "node:fs/promises";
+
+//importer les routes
+import routerExterne from "./routes.js";
 
 // Importation des fichiers et librairies
 import { engine } from "express-handlebars";
@@ -51,7 +52,7 @@ const hbs = engine({
   }
 });
 
-app.engine("handlebars", hbs); //Pour indiquer a express que l'on utilise handlebars
+app.engine("handlebars", engine()); //Pour indiquer a express que l'on utilise handlebars
 app.set("view engine", "handlebars"); //Pour indiquer le rendu des vues
 app.set("views", "./views"); //Pour indiquer le dossier des vues
 
@@ -101,11 +102,13 @@ app.use((request, response) => {
     response.status(404).send(`${request.originalUrl} Route introuvable.`);
 });
 
-//Demarrer le serveur
+/Demarrer le serveur
 //Usage du HTTPS
 if (process.env.NODE_ENV === "development") {
     let credentials = {
+        //c'est la clé
         key: await readFile("./security/localhost.key"),
+        // c'est le certificat
         cert: await readFile("./security/localhost.cert"),
     };
  
