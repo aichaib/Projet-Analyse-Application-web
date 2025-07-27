@@ -77,7 +77,7 @@ app.use(
             sameSite: "lax", // pour que le cookie soit accepté même avec fetch()
             secure: false    // doit être true si HTTPS, false en local
         },
-        name: "sessionId",
+        name: process.env.npm_package_name,
         store: new MemoryStore({ checkPeriod: 3600000 }),
         resave: false,
         saveUninitialized: false,
