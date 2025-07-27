@@ -4,6 +4,9 @@ import "dotenv/config";
 //importer les routes
 import routerExterne from "./routes.js";
 
+import https from "node:https";
+import { readFile } from "node:fs/promises";
+
 // Importation des fichiers et librairies
 import { engine } from "express-handlebars";
 import express, { json } from "express";
@@ -98,7 +101,19 @@ app.use((request, response) => {
     response.status(404).send(`${request.originalUrl} Route introuvable.`);
 });
 
-//Démarrage du serveur
-app.listen(process.env.PORT);
-console.info("Serveur démarré :");
-console.info(`http://localhost:${process.env.PORT}`);
+//Demarrer le serveur
+//Usage du HTTPS
+if (process.env.NODE_ENV === "development") {
+    let credentials = {
+        key: await readFile("./security/localhost.key"),
+        cert: await readFile("./security/localhost.cert"),
+    };
+ 
+    https.createServer(credentials, app).listen(process.env.PORT);
+    console.info("Serveur démarré avec succès: ");
+    console.log("https://localhost:" + process.env.PORT);
+} else {
+    app.listen(process.env.PORT);
+    console.info("Serveur démarré avec succès: ");
+    console.info("http://localhost:" + process.env.PORT);
+}
