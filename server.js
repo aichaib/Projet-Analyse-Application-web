@@ -1,7 +1,6 @@
 //Doit etre en debut de fichier pour charger les variables d'environnement
 import "dotenv/config";
 
-
 import https from "node:https";
 import { readFile } from "node:fs/promises";
 
