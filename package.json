@@ -7,6 +7,7 @@
  "scripts": {
   "dev": "nodemon server.js",
   "seed": "node prisma/seed.js",
+   "postinstall": "prisma generate",
   "test": "echo \"Error: no test specified\" && exit 1"
  },
  "author": "Ibikunle Aicha Miguel Proulx Daoud Aslan Taha Ait Bella Charles Kossi",
