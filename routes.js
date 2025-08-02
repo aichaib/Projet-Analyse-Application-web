@@ -238,7 +238,7 @@ router.post("/admin/login", async (req, res, next) => {
 
 
 router.get("/admin/login", (req, res) => {
-  res.render("adminLogin", {
+  res.render("adminlogin", {
     titre: "Connexion Administrateur",
     styles: ["/css/style.css", "/css/form.css"],
     scripts: ["/js/adminLogin.js"]
