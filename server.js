@@ -91,6 +91,10 @@ app.use(passport.session());
 //Middeleware integre a express pour gerer la partie static du serveur
 //le dossier 'public' est la partie statique de notre serveur
 app.use(express.static("public"));
+ 
+app.get('/healthz', (req, res) => {
+  res.status(200).send('OK')
+})
 
 // Ajout des routes
 app.use(routerExterne);
