@@ -844,6 +844,31 @@ router.get("/list/equipement", async (req, res) => {
   }
 });
 
+// API: liste plate des équipements
+
+router.get("/api/equipements", async (req, res) => {
+
+  try {
+
+    const equipements = await prisma.equipement.findMany({
+
+      orderBy: { nom: "asc" }
+
+    });
+
+    res.json(equipements);
+
+  } catch (err) {
+
+    console.error("Erreur /api/equipements:", err);
+
+    res.status(500).json({ error: "Erreur serveur" });
+
+  }
+
+});
+ 
+
 router.get("/new/equipement", (req, res) => {
   res.render("newEquipement", {
     titre: "Ajouter un équipement",
