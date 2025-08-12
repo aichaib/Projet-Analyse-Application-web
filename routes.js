@@ -754,6 +754,10 @@ router.post("/api/salles/recherche", async (req, res) => {
 router.get("/admin/utilisateurs", requireAuth, async (req, res, next) => {
   try {
     const users = await listUsers();
+    if (req.accepts("json")) {
+      return res.json(users);
+      
+    }
     res.render("utilisateurs/listUtilisateurs", {
       titre: "Gestion des utilisateurs",
       styles: ["/css/style.css", "/css/styleListUtilisateurs.css"],
