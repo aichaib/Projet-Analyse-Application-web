@@ -1020,4 +1020,41 @@ router.post('/user/settings', async (req, res) => {
   }
 });
 
+// ADD THESE NEW JSON ENDPOINTS FOR iOS APP
+router.get("/admin/historique/json", requireAuth, async (req, res, next) => {
+  try {
+    const historique = await getHistoriqueByAdminId(req.session.user.id);
+    
+    // Format the data for iOS app
+    const formattedHistorique = historique.map(item => ({
+      id: item.id,
+      action: item.action,
+      details: item.details,
+      timestamp: item.timestamp ? new Date(item.timestamp).toISOString().slice(0, 16).replace('T', ' ') : new Date().toISOString().slice(0, 16).replace('T', ' ')
+    }));
+    
+    res.json(formattedHistorique);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/admin/historiqueAdmin/json", requireAuth, async (req, res, next) => {
+  try {
+    const historique = await getHistoriqueByAdminId(req.session.user.id);
+    
+    // Format the data for iOS app
+    const formattedHistorique = historique.map(item => ({
+      id: item.id,
+      action: item.action,
+      details: item.details,
+      timestamp: item.timestamp ? new Date(item.timestamp).toISOString().slice(0, 16).replace('T', ' ') : new Date().toISOString().slice(0, 16).replace('T', ' ')
+    }));
+    
+    res.json(formattedHistorique);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
