@@ -282,8 +282,15 @@ router.get("/accueil/admin", requireAuth, (req, res) => {
     return res.redirect("/admin/login");
   }
   if (req.accepts("json")) {
-    return res.json({ user: req.session.user });
-    
+    const u= req.session.user ;
+    return res.json({
+    id: u.id,
+    email: u.email,
+    prenom: u.prenom,
+    nom: u.nom,
+    isAdmin: true,
+    adminAuth: true
+    });
   }
   res.render("dashboardAdmin", {
     titre: "Page d'accueil administrateur",
