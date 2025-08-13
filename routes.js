@@ -1039,6 +1039,19 @@ router.get("/admin/historique/json", requireAuth, async (req, res, next) => {
   }
 });
 
+router.get("/user/me", (req, res) => {
+  if (!req.session.user) return res.status(401).json({ error: "Non authentifié" });
+  const u = req.session.user;
+  // Harmoniser le payload avec ton modèle iOS User
+  res.json({
+    id: u.id,
+    prenom: u.prenom || "",
+    nom: u.nom || "",
+    email: u.email || "",
+    isAdmin: !!(u.adminAuth || u.isAdmin)
+  });
+});
+
 router.get("/admin/historiqueAdmin/json", requireAuth, async (req, res, next) => {
   try {
     const historique = await getHistoriqueByAdminId(req.session.user.id);
