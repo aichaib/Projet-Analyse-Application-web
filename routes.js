@@ -1057,4 +1057,51 @@ router.get("/admin/historiqueAdmin/json", requireAuth, async (req, res, next) =>
   }
 });
 
+router.get("/api/reservations/all", async (req, res) => {
+  try {
+    const rows = await prisma.utilisationSalle.findMany({
+      include: { salle: true },
+      orderBy: [{ dateUtilisation: "asc" }, { heureUtilisation: "asc" }],
+    });
+
+    const data = rows.map(r => ({
+      id: r.id,
+      salleId: r.salleId,
+      // "yyyy-MM-dd"
+      dateUtilisation: new Date(r.dateUtilisation).toISOString().slice(0, 10),
+      // "HH:mm" (si stocké en DateTime)
+      heureUtilisation: new Date(r.heureUtilisation).toISOString().slice(11, 16),
+    }));
+
+    res.json(data);
+  } catch (err) {
+    console.error("Erreur /api/reservations/all:", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+router.get("/api/reservations/mine", async (req, res) => {
+  if (!req.session.user) return res.status(401).json({ error: "Non authentifié" });
+
+  try {
+    const rows = await prisma.utilisationSalle.findMany({
+      where: { utilisateurId: req.session.user.id },
+      include: { salle: true },
+      orderBy: [{ dateUtilisation: "asc" }, { heureUtilisation: "asc" }],
+    });
+
+    const data = rows.map(r => ({
+      id: r.id,
+      salleId: r.salleId,
+      dateUtilisation: new Date(r.dateUtilisation).toISOString().slice(0, 10),
+      heureUtilisation: new Date(r.heureUtilisation).toISOString().slice(11, 16),
+    }));
+
+    res.json(data);
+  } catch (err) {
+    console.error("Erreur /api/reservations/mine:", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
 export default router;
